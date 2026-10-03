@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giveaways · Vaul</title>
+  <!-- social -->
+  <meta name="description" content="NFT giveaways for Vaul coin holders, drawn on-chain." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Vaul" />
+  <meta property="og:title" content="Vaul Giveaways" />
+  <meta property="og:description" content="NFT giveaways for Vaul coin holders, drawn on-chain." />
+  <meta property="og:url" content="https://vaul.app/claims" />
+  <meta property="og:image" content="https://vaul.app/assets/brand/og.jpg" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1260" />
+  <meta property="og:image:alt" content="Vaul: Trade coins. Own the floor." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@vauldotapp" />
+  <meta name="twitter:title" content="Vaul Giveaways" />
+  <meta name="twitter:description" content="NFT giveaways for Vaul coin holders, drawn on-chain." />
+  <meta name="twitter:image" content="https://vaul.app/assets/brand/og.jpg" />
+  <!-- /social -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/brand/favicon-64.png" />
+  <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png" />
+  <meta name="theme-color" content="#f6f5fb" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header id="site-header"></header>
+  <main class="page">
+    <h1 class="page-title">Giveaways</h1>
+    <p class="lead-left">Raffle prizes are delivered automatically by the keeper. If a delivery is still pending, you can claim your NFT here with the published snapshot proof.</p>
+    <div class="card" id="mine"><p>Connect your wallet to see raffles you have tickets in.</p><button class="btn btn-dark" data-connect-inline>Connect wallet</button></div>
+    <h2 class="sub">Recent draws</h2>
+    <div class="table-wrap"><table class="table" id="draws"><thead><tr><th>Coin</th><th>NFT</th><th>Status</th><th>Winner</th></tr></thead><tbody><tr><td colspan="4" class="empty">Loading…</td></tr></tbody></table></div>
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="pages/claims.js"></script>
+</body>
+</html>

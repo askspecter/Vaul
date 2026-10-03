@@ -1,0 +1,9 @@
+{
+  "name": "vaul-site",
+  "private": true,
+  "description": "Vercel functions in api/. The site itself is static and needs no build.",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "viem": "2.21.0"
+  }
+}

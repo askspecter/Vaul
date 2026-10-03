@@ -1,0 +1,41 @@
+# Scans OpenSea (with the repo's OPENSEA_API_KEY secret) for active collections on
+# Ethereum, Base and Robinhood Chain and commits data/collection-candidates.json.
+name: scan-collections
+
+on:
+  workflow_dispatch:
+    inputs:
+      per_chain:
+        description: "Collections to examine per chain"
+        default: "200"
+      min_sales_7d:
+        description: "Minimum sales in the last 7 days"
+        default: "5"
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Scan OpenSea
+        working-directory: keeper
+        env:
+          OPENSEA_API_KEY: ${{ secrets.OPENSEA_API_KEY }}
+          PER_CHAIN: ${{ inputs.per_chain }}
+          MIN_SALES_7D: ${{ inputs.min_sales_7d }}
+        run: node scripts/scan-collections.js
+      - name: Commit results
+        run: |
+          git config user.name "launchnft-scanner"
+          git config user.email "scanner@users.noreply.github.com"
+          git add data/collection-candidates.json
+          git commit -m "scan: collection candidates" || exit 0
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"

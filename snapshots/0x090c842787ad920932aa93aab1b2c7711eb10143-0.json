@@ -1,0 +1,28 @@
+{
+  "vault": "0x090c842787Ad920932aA93AAB1B2C7711EB10143",
+  "raffleId": "0",
+  "tokenId": "7914",
+  "collection": "0x505A22Ffed8d37ebE580FfD98d2Cdb0021189146",
+  "token": "0x61F9F1995D99bd40aAA0d2D64c2C6a6baa9d3465",
+  "block": "72212039",
+  "root": "0xe6b3ef04958faf3e67f1d735edbcdc0f8af7cccbb7f0c9583b1ff21821504e36",
+  "totalTickets": "2517590835880421809272760",
+  "entries": [
+    {
+      "account": "0x511A69daB088F1885260882e12B0354FED3faC0c",
+      "start": "0",
+      "end": "20458",
+      "proof": [
+        "0x4caa1e983a4b66c08bc54dcb31063b96a044232226b7fa5e0e6a4e493ccdf22b"
+      ]
+    },
+    {
+      "account": "0x8B8023898585E97DA73eB02A6Af93D52127aAe13",
+      "start": "20458",
+      "end": "2517590835880421809272760",
+      "proof": [
+        "0xbcf6f47dddd6209a59b5a4f310140c33587def01fb7a122005fdb8dbc2c3d731"
+      ]
+    }
+  ]
+}

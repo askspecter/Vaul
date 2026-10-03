@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Collections · Vaul</title>
+  <!-- social -->
+  <meta name="description" content="400+ NFT collections across Robinhood Chain, Ethereum, Base, Hyperliquid and Solana that a coin can collect." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Vaul" />
+  <meta property="og:title" content="Collections on Vaul" />
+  <meta property="og:description" content="400+ NFT collections across Robinhood Chain, Ethereum, Base, Hyperliquid and Solana that a coin can collect." />
+  <meta property="og:url" content="https://vaul.app/collections" />
+  <meta property="og:image" content="https://vaul.app/assets/brand/og.jpg" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1260" />
+  <meta property="og:image:alt" content="Vaul: Trade coins. Own the floor." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@vauldotapp" />
+  <meta name="twitter:title" content="Collections on Vaul" />
+  <meta name="twitter:description" content="400+ NFT collections across Robinhood Chain, Ethereum, Base, Hyperliquid and Solana that a coin can collect." />
+  <meta name="twitter:image" content="https://vaul.app/assets/brand/og.jpg" />
+  <!-- /social -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/brand/favicon-64.png" />
+  <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png" />
+  <meta name="theme-color" content="#f6f5fb" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header id="site-header"></header>
+  <main class="page">
+    <h1 class="page-title">Collections</h1>
+    <p class="lead-left">NFT collections that new coins can be paired with. Each coin sweeps exactly one of them.</p>
+    <div class="list-tools">
+      <input id="q" type="search" placeholder="Search by name or address" aria-label="Search collections" />
+      <div class="chips" id="chainChips"></div>
+    </div>
+    <div class="table-wrap"><table class="table" id="table"><thead><tr><th>Collection</th><th>Coins</th><th>ETH in vaults</th><th>NFTs held</th></tr></thead><tbody><tr><td colspan="4" class="empty">Loading…</td></tr></tbody></table></div>
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="pages/collections.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Refreshes data/floors.json (floor prices shown on the home page) every 6 hours.
+name: floors
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  floors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Fetch floors
+        working-directory: keeper
+        env:
+          OPENSEA_API_KEY: ${{ secrets.OPENSEA_API_KEY }}
+        run: node scripts/floors.js
+      - name: Commit
+        run: |
+          git config user.name "vaul-floors"
+          git config user.email "floors@users.noreply.github.com"
+          git add data/floors.json
+          git commit -m "floors: refresh" || exit 0
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
