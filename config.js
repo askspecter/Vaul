@@ -1,5 +1,6 @@
-// Fill `launcher` and `startBlock` after running contracts/script/Deploy.s.sol on Robinhood Chain.
-// While `launcher` is empty the site shows sample data and launching is disabled.
+// Vaul's own contracts. Deploy them from /admin (see PANDUAN-HP.md), then paste the addresses
+// here. While `launcher` is empty the site shows a setup banner and launching is disabled.
+// The API (api/*.js) reads these same values, so this is the only place to change them.
 export const CONFIG = {
   chainId: 4663,
   chainName: "Robinhood Chain",
@@ -7,10 +8,10 @@ export const CONFIG = {
   explorer: "https://robinhoodchain.blockscout.com",
   ponsFactory: "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
   seaport: "0x0000000000000068F116a894984e2DB1123eB395",
-  launcher: "0x4fbac0fe4ba373ea7c34661cb1b9934b6f4c5a37",
-  startBlock: 70558619, // block the Registry was deployed in
+  launcher: "", // Vaul Launcher, from admin.html step 1
+  startBlock: 0, // block the Vaul Registry was deployed in, from admin.html step 1
   snapshotBaseUrl: "snapshots/", // where the keeper's SNAPSHOT_DIR is served
-  externalLauncher: "0xdbe1b07b2e5c4d4c32c4813c360ba3341f766270", // Ethereum / Base / Hyperliquid / Solana collections
+  externalLauncher: "", // Vaul external launcher (Ethereum / Base / Hyperliquid / Solana), from admin.html step 3
   // Chains a coin can collect NFTs on. Ids for non-Robinhood chains follow Relay's chain ids.
   chains: {
     4663: { name: "Robinhood", evm: true, currency: "ETH", explorer: "https://robinhoodchain.blockscout.com", opensea: "robinhood", icon: "assets/chains/robinhood.png" },
@@ -20,7 +21,7 @@ export const CONFIG = {
     792703809: { name: "Solana", evm: false, currency: "SOL", explorer: "https://solscan.io", icon: "assets/chains/solana.jpg" },
   },
   collectionsUrl: "collections.json", // names + marketplace slugs for listed collections
-  hiddenLaunches: ["0"], // launch ids kept off the site's lists (the contracts still run them)
+  hiddenLaunches: [], // launch ids kept off the site's lists (the contracts still run them)
   x: "UseVaul", // X / Twitter handle shown in the menu
   // Reown (WalletConnect) Project ID from https://cloud.reown.com. Public by design.
   // Empty = fall back to the browser's injected wallet only.

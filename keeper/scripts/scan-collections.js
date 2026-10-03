@@ -1,4 +1,4 @@
-// Scans OpenSea for NFT collections worth listing on LaunchNFT and writes
+// Scans OpenSea for NFT collections worth listing on Vaul and writes
 // data/collection-candidates.json. Run by .github/workflows/scan-collections.yml.
 //
 // For each chain it pages through collections ordered by 7-day volume, fetches stats for

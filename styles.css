@@ -819,6 +819,7 @@ a.nft:hover { border-color: var(--accent); }
 .d-addrs { display: grid; gap: 8px; margin-top: 14px; }
 .d-addr { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; flex-wrap: wrap; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
 .d-addr b { display: block; font-size: 15px; }
+@media (max-width: 640px) { .d-addr { flex-direction: column; align-items: flex-start; } }
 .d-addr small { color: var(--muted); font-size: 12px; }
 .d-addr span { display: inline-flex; align-items: center; gap: 8px; }
 
@@ -827,3 +828,4 @@ a.nft:hover { border-color: var(--accent); }
 .gloss dd { margin: 0; color: var(--ink-2); line-height: 1.6; }
 @media (max-width: 640px) { .gloss { grid-template-columns: 1fr; gap: 2px; } .gloss dd { margin-bottom: 12px; } }
 .docs2 .faq p { font-size: 15px; }
+.admin label + .btn { margin-top: 14px; }

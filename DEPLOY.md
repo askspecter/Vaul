@@ -90,7 +90,7 @@ Keeper **tidak bisa** dijalankan di Vercel: Vercel hanya menjalankan fungsi pend
 ### Opsi B: VPS sendiri (pm2/systemd)
 
 ```sh
-npm i -g pm2 && pm2 start src/index.js --name launchnft-keeper && pm2 save
+npm i -g pm2 && pm2 start src/index.js --name vaul-keeper && pm2 save
 ```
 
 ## 6. Publikasikan website

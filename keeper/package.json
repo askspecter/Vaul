@@ -1,9 +1,9 @@
 {
-  "name": "launchnft-keeper",
+  "name": "vaul-keeper",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Harvests Pons fees, sweeps NFT floors via Seaport and runs raffles for LaunchNFT vaults",
+  "description": "Harvests Pons fees, sweeps NFT floors via Seaport and runs raffles for Vaul vaults",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

@@ -450,7 +450,7 @@ export function renderChrome(active) {
   if (!live) {
     const banner = document.createElement("div");
     banner.className = "banner";
-    banner.textContent = "Contracts not deployed yet — showing sample data. Set CONFIG.launcher in config.js after deploying.";
+    banner.textContent = "Vaul contracts are being set up. Launching opens as soon as they are live.";
     document.body.prepend(banner);
   }
 }

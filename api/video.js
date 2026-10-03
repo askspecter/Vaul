@@ -6,10 +6,8 @@
 // `launch` is a number for Robinhood coins and "e<n>" for coins collecting on other chains.
 const { kv } = require("./_kv");
 
-// Keep in sync with config.js.
-const RPC_URL = process.env.RPC_URL || "https://rpc.mainnet.chain.robinhood.com";
-const LAUNCHER = process.env.LAUNCHER || "0x4fbac0fe4ba373ea7c34661cb1b9934b6f4c5a37";
-const EXTERNAL_LAUNCHER = process.env.EXTERNAL_LAUNCHER || "0xdbe1b07b2e5c4d4c32c4813c360ba3341f766270";
+const { contracts } = require("./_contracts");
+const { rpcUrl: RPC_URL, launcher: LAUNCHER, externalLauncher: EXTERNAL_LAUNCHER } = contracts();
 
 const MAX_AGE = 10 * 60; // a signature is good for 10 minutes
 const PER_HOUR = 30; // saves per IP per hour
@@ -43,7 +41,7 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const launch = String(req.query.launch || "");
       if (!LAUNCH_RE.test(launch)) return res.status(400).json({ error: "Bad launch id" });
-      const video = await kv("GET", `video:${launch}`);
+      const video = await kv("GET", `video:${LAUNCHER.toLowerCase()}:${launch}`);
       res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=300");
       return res.status(200).json({ video: video || null });
     }
@@ -77,8 +75,8 @@ module.exports = async (req, res) => {
       .catch(() => false);
     if (!ok) return res.status(403).json({ error: "Only the wallet that launched this coin can set its video" });
 
-    if (video) await kv("SET", `video:${launch}`, video);
-    else await kv("DEL", `video:${launch}`);
+    if (video) await kv("SET", `video:${LAUNCHER.toLowerCase()}:${launch}`, video);
+    else await kv("DEL", `video:${LAUNCHER.toLowerCase()}:${launch}`);
     return res.status(200).json({ video: video || null });
   } catch (e) {
     return res.status(500).json({ error: e.message });

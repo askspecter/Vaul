@@ -33,7 +33,7 @@ jobs:
         run: node scripts/scan-collections.js
       - name: Commit results
         run: |
-          git config user.name "launchnft-scanner"
+          git config user.name "vaul-scanner"
           git config user.email "scanner@users.noreply.github.com"
           git add data/collection-candidates.json
           git commit -m "scan: collection candidates" || exit 0

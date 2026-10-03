@@ -1,6 +1,6 @@
-# LaunchNFT keeper
+# Vaul keeper
 
-A long-running Node process that keeps every LaunchNFT vault moving:
+A long-running Node process that keeps every Vaul vault moving:
 
 | Step | What it does | On-chain guard |
 | --- | --- | --- |

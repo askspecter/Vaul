@@ -1,11 +1,12 @@
-# Runs the LaunchNFT keeper on a schedule, so no server is needed.
+# Runs the Vaul keeper on a schedule, so no server is needed.
 #
 # Setup (all from github.com, works on a phone):
 #   Settings → Secrets and variables → Actions
 #     Secrets:   KEEPER_PRIVATE_KEY  (dedicated keeper wallet, gas money only)
 #                OPENSEA_API_KEY     (optional; empty = auto free-tier key)
 #                KEEPER_SOLANA_KEY   (optional; base58 secret key, only for Solana collections)
-#     Variables (optional): LAUNCHER, START_BLOCK — default to the mainnet deployment below
+#     Variables:  LAUNCHER, START_BLOCK, EXTERNAL_LAUNCHER — Vaul's own contracts (from admin.html).
+#                 The keeper does not run until LAUNCHER is set.
 #   Optional variables: MAX_CEILING_ETH, CEILING_MARKUP_BPS, MIN_HARVEST_ETH
 #
 # Raffle snapshots are committed to snapshots/, which Vercel serves with the site.
@@ -30,6 +31,8 @@ concurrency:
 
 jobs:
   run:
+    # Nothing to do until Vaul's own contracts are deployed and set as repo variables.
+    if: ${{ vars.LAUNCHER != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -50,11 +53,11 @@ jobs:
         env:
           KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
           OPENSEA_API_KEY: ${{ secrets.OPENSEA_API_KEY }}
-          # Mainnet deployment; repo variables override these.
-          LAUNCHER: ${{ vars.LAUNCHER || '0x4fbac0fe4ba373ea7c34661cb1b9934b6f4c5a37' }}
-          START_BLOCK: ${{ vars.START_BLOCK || '70558619' }}
+          # Vaul's own deployment (repo variables, from admin.html).
+          LAUNCHER: ${{ vars.LAUNCHER }}
+          START_BLOCK: ${{ vars.START_BLOCK }}
           # Ethereum / Base / Hyperliquid / Solana collections
-          EXTERNAL_LAUNCHER: ${{ vars.EXTERNAL_LAUNCHER || '0xdbe1b07b2e5c4d4c32c4813c360ba3341f766270' }}
+          EXTERNAL_LAUNCHER: ${{ vars.EXTERNAL_LAUNCHER }}
           KEEPER_SOLANA_KEY: ${{ secrets.KEEPER_SOLANA_KEY }}
           COLLECTIONS_FILE: ../collections.json
           MAX_CEILING_ETH: ${{ vars.MAX_CEILING_ETH || '0.5' }}
@@ -68,7 +71,7 @@ jobs:
       - name: Publish new raffle snapshots
         run: |
           if [ -n "$(git status --porcelain snapshots)" ]; then
-            git config user.name "launchnft-keeper"
+            git config user.name "vaul-keeper"
             git config user.email "keeper@users.noreply.github.com"
             git add snapshots
             git commit -m "keeper: publish raffle snapshots"

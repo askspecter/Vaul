@@ -7,12 +7,12 @@
 // Launched event from one of the launcher contracts, so nobody can add arbitrary ids.
 const { kv } = require("./_kv");
 
-// Keep in sync with config.js.
-const RPC_URL = process.env.RPC_URL || "https://rpc.mainnet.chain.robinhood.com";
-const LAUNCHER = process.env.LAUNCHER || "0x4fbac0fe4ba373ea7c34661cb1b9934b6f4c5a37";
-const EXTERNAL_LAUNCHER = process.env.EXTERNAL_LAUNCHER || "0xdbe1b07b2e5c4d4c32c4813c360ba3341f766270";
+const { contracts } = require("./_contracts");
+const { rpcUrl: RPC_URL, launcher: LAUNCHER, externalLauncher: EXTERNAL_LAUNCHER } = contracts();
 
-const KEY = "vaul:launches"; // sorted set: member = launch id, score = time recorded (ms)
+// Sorted set (member = launch id, score = time recorded in ms), one per Launcher so ids from an
+// earlier deployment never mix with the current one.
+const KEY = `vaul:launches:${LAUNCHER.toLowerCase()}`;
 const HASH_RE = /^0x[0-9a-fA-F]{64}$/;
 const PER_HOUR = 30; // posts per IP per hour
 
@@ -40,6 +40,10 @@ async function launchIdFromTx(hash) {
 
 module.exports = async (req, res) => {
   try {
+    if (!LAUNCHER) {
+      if (req.method === "GET") return res.status(200).json({ ids: [] });
+      return res.status(503).json({ error: "Contracts are not configured yet" });
+    }
     if (req.method === "GET") {
       const ids = (await kv("ZRANGE", KEY, 0, -1, "REV")) || [];
       res.setHeader("Cache-Control", "public, max-age=10, stale-while-revalidate=60");
