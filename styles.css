@@ -192,7 +192,7 @@ h1, h2, h3, h4, .page-title, .sub { font-family: var(--display); font-weight: 70
 
 /* ---------------------------------------------------------------- home hero */
 .hero {
-  max-width: 1200px; margin: 0 auto; padding: clamp(48px, 8vw, 96px) clamp(16px, 3vw, 32px) 40px;
+  max-width: 1200px; margin: 0 auto; padding: clamp(24px, 5vw, 64px) clamp(16px, 3vw, 32px) 32px;
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); column-gap: 48px; align-items: center;
   overflow-x: clip;
 }
@@ -202,7 +202,7 @@ h1, h2, h3, h4, .page-title, .sub { font-family: var(--display); font-weight: 70
 h1 { font-size: clamp(40px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.05em; margin: 22px 0 20px; text-wrap: balance; }
 .lead { font-size: clamp(16px, 1.6vw, 18px); color: var(--muted); max-width: 540px; margin: 0; line-height: 1.6; }
 /* hero headline: one block, the word "vault" carries the ribbon and a hand-drawn swoosh under it */
-.hero-title { font-weight: 600; letter-spacing: -0.055em; max-width: 12ch; margin-bottom: 32px; }
+.hero-title { font-weight: 600; letter-spacing: -0.055em; max-width: 12ch; margin: 0 0 28px; }
 .hero-title em { position: relative; display: inline-block; font-weight: 700; padding-right: .04em; }
 .hero-title em::after {
   content: ""; position: absolute; left: -2%; right: -4%; bottom: -0.12em; height: .22em; pointer-events: none;
@@ -289,16 +289,25 @@ h1 { font-size: clamp(40px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.
 }
 
 /* ---------------------------------------------------------------- rules ticker */
-.marquee { overflow: hidden; border-block: 1px solid var(--line); background: var(--bg-2); padding: 0; margin-top: 56px; }
-.track { display: flex; width: max-content; animation: scroll 60s linear infinite; }
-.marquee:hover .track { animation-play-state: paused; }
+.marquee { overflow: hidden; border-block: 1px solid var(--line); background: var(--bg-2); padding: 0; margin-top: 48px; }
+/* Two identical groups slide left by exactly one group width, so the loop has no seam.
+   The rules are static HTML, so the strip shows even before (or without) the page script. */
+.track { display: flex; width: max-content; animation: marquee 45s linear infinite; will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.rules-group { display: flex; flex: none; }
+@media (hover: hover) { .marquee:hover .track { animation-play-state: paused; } }
 .rule {
-  display: flex; align-items: baseline; gap: 12px; padding: 16px 28px; border-right: 1px solid var(--line); white-space: nowrap;
+  display: flex; align-items: baseline; gap: 12px; padding: 16px 28px; border-right: 1px solid var(--line); white-space: nowrap; flex: none;
 }
 .rule small { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--lavender); }
 .rule span { font-size: 14px; color: var(--ink-2); }
-@keyframes scroll { to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .track { animation: none; } }
+@keyframes marquee { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+  .marquee { overflow-x: auto; scrollbar-width: none; }
+  .marquee::-webkit-scrollbar { display: none; }
+  .rules-group[aria-hidden] { display: none; }
+}
+@media (max-width: 520px) { .rule { padding: 13px 20px; gap: 10px; } .rule span { font-size: 13px; } }
 
 /* ---------------------------------------------------------------- sections */
 .section { max-width: 1200px; margin: 0 auto; padding: clamp(56px, 8vw, 96px) clamp(16px, 3vw, 32px) 0; }
@@ -449,10 +458,12 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .sub { font-size: 20px; margin: 40px 0 14px; letter-spacing: -0.02em; }
 .cta-left { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; margin: 16px 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 16px 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
 .kpi { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0 -1px -1px 0; }
 .kpi span { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
 .kpi b { font-family: var(--display); font-size: 24px; letter-spacing: -0.03em; }
+@media (max-width: 760px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .kpi { padding: 14px; } .kpi b { font-size: 20px; } }
 .coin-main .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 700px) { .coin-main .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -698,7 +709,7 @@ a.nft:hover { border-color: var(--accent); }
 /* ================================================================ docs */
 .docs2 { max-width: 1200px; }
 .d-hero { padding-bottom: 8px; }
-.d-hero .page-title { font-size: clamp(38px, 6vw, 62px); margin: 20px 0 14px; }
+.d-hero .page-title { font-size: clamp(38px, 6vw, 62px); margin: 0 0 14px; }
 .d-hero .lead-left { font-size: 17px; max-width: 720px; }
 .d-glance { display: grid; grid-template-columns: repeat(4, 1fr); margin: 8px 0 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
 .d-glance div { padding: 18px; border-right: 1px solid var(--line); }

@@ -2,19 +2,6 @@ import {
   live, $, esc, toast, renderChrome, loadLaunches, coinCard, formatEther, collectionMeta, chainIcon, hd,
 } from "./lib.js";
 
-const RULES = [
-  ["PAIRING", "locked at launch"],
-  ["FEE SPLIT", "80 vault / 20 protocol"],
-  ["SPEND LIMIT", "price ≤ posted ceiling"],
-  ["CEILING TTL", "expires after 1 hour"],
-  ["MARKET", "Seaport 1.6 only"],
-  ["WITHDRAW", "not implemented, by design"],
-  ["HARVEST", "callable by anyone"],
-  ["DRAW", "future chain block hash"],
-  ["POLICY", "raffle, hold or burn"],
-  ["ADMIN KEYS", "none on the vault"],
-];
-
 const SAMPLE = [
   { name: "Floor Muncher", symbol: "MUNCH", collectionName: "Pixel Pals", vaultBalance: 12_400000000000000000n, nfts: 31, policy: "Raffle" },
   { name: "Ape Sweeper", symbol: "SWEEP", collectionName: "Jungle Club", vaultBalance: 48_100000000000000000n, nfts: 9, policy: "Hold" },
@@ -26,11 +13,6 @@ let coins = live ? [] : SAMPLE;
 let currentSort = "new";
 
 renderChrome("index");
-
-function renderRules() {
-  const html = RULES.map(([k, v]) => `<div class="rule"><small>${k}</small><span>${v}</span></div>`).join("");
-  $("#track").innerHTML = html + html; // duplicated for a seamless loop
-}
 
 function renderGrid() {
   const sorted = [...coins].sort((a, b) =>
@@ -107,7 +89,6 @@ async function renderFloors() {
   renderStage(data.items.filter((c) => c.image && c.floorUsd), meta.length);
 }
 
-renderRules();
 renderFloors().catch((err) => console.error(err));
 if (location.hash === "#launch") location.replace("launch");
 refresh().catch((e) => toast("Could not load launches: " + (e.shortMessage || e.message)));
