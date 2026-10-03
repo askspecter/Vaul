@@ -11,7 +11,7 @@ export const CONFIG = {
   launcher: "0xc3fcb48dfcc3716cdc57312646046cd01dfaa477", // Vaul Launcher (Registry 0x73235cfd5c8ea0a8177ec3f61467c6452613f586)
   startBlock: 78887766, // block the Vaul Registry was deployed in
   snapshotBaseUrl: "snapshots/", // where the keeper's SNAPSHOT_DIR is served
-  externalLauncher: "", // Vaul external launcher (Ethereum / Base / Hyperliquid / Solana), from admin.html step 3
+  externalLauncher: "0xfc33e6b4200038984d3f6d5333b690d064294550", // Vaul external launcher (Ethereum / Base / Hyperliquid / Solana)
   // Chains a coin can collect NFTs on. Ids for non-Robinhood chains follow Relay's chain ids.
   chains: {
     4663: { name: "Robinhood", evm: true, currency: "ETH", explorer: "https://robinhoodchain.blockscout.com", opensea: "robinhood", icon: "assets/chains/robinhood.png" },
