@@ -5,7 +5,7 @@
 #     Secrets:   KEEPER_PRIVATE_KEY  (dedicated keeper wallet, gas money only)
 #                OPENSEA_API_KEY     (optional; empty = auto free-tier key)
 #                KEEPER_SOLANA_KEY   (optional; base58 secret key, only for Solana collections)
-#     Variables:  LAUNCHER, START_BLOCK, EXTERNAL_LAUNCHER — Vaul's own contracts (from admin.html).
+#     Variables:  LAUNCHER, START_BLOCK, EXTERNAL_LAUNCHER — Vaul's own contracts (see config.js).
 #                 The keeper does not run until LAUNCHER is set.
 #   Optional variables: MAX_CEILING_ETH, CEILING_MARKUP_BPS, MIN_HARVEST_ETH
 #
@@ -53,7 +53,7 @@ jobs:
         env:
           KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
           OPENSEA_API_KEY: ${{ secrets.OPENSEA_API_KEY }}
-          # Vaul's own deployment (repo variables, from admin.html).
+          # Vaul's own deployment (repo variables, same as config.js).
           LAUNCHER: ${{ vars.LAUNCHER }}
           START_BLOCK: ${{ vars.START_BLOCK }}
           # Ethereum / Base / Hyperliquid / Solana collections

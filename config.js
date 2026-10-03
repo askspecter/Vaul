@@ -1,5 +1,5 @@
-// Vaul's own contracts. Deploy them from /admin (see PANDUAN-HP.md), then paste the addresses
-// here. While `launcher` is empty the site shows a setup banner and launching is disabled.
+// Vaul's own contracts (deployed 3 Oct 2026, see PANDUAN-HP.md). While `launcher` is empty the
+// site shows a setup banner and launching is disabled.
 // The API (api/*.js) reads these same values, so this is the only place to change them.
 export const CONFIG = {
   chainId: 4663,

@@ -32,217 +32,219 @@
 </head>
 <body>
   <header id="site-header"></header>
-  <main class="page docs2">
-    <section class="d-hero">
-      <h1 class="page-title">Everything about <em>Vaul</em></h1>
-      <p class="lead-left">Vaul turns a memecoin into a collector. Every coin launched here is a normal Pons coin on Robinhood Chain, with one difference: its creator fees flow into a vault that can only ever buy NFTs from the one collection it was launched for, and then hands them to the people who hold the coin.</p>
-      <div class="d-glance" id="glance">
-        <div><b id="gFee">0.0005 ETH</b><span>Pons launch fee</span></div>
-        <div><b>80%</b><span>of creator fees go to the vault</span></div>
-        <div><b id="gCols">400+</b><span>collections to collect</span></div>
-        <div><b>5</b><span>chains: Robinhood, Ethereum, Base, Hyperliquid, Solana</span></div>
+  <main class="vd">
+    <!-- ============================================================ hero -->
+    <section class="vd-hero">
+      <div class="vd-hero-text">
+        <p class="vd-kicker">Vaul docs</p>
+        <h1 class="vd-title">How a coin <em>fills its vault.</em></h1>
+        <p class="vd-lead">Every coin on Vaul is a normal Pons coin on Robinhood Chain with one twist: its creator fees stream into a vault that can only buy NFTs from the collection it was launched for. This page covers the whole path, from launch to the NFT landing in a holder's wallet.</p>
+        <dl class="vd-facts">
+          <div><dt>Launch fee</dt><dd id="gFee">0.0005 ETH</dd></div>
+          <div><dt>To the vault</dt><dd>80%</dd></div>
+          <div><dt>Collections</dt><dd id="gCols">400+</dd></div>
+          <div><dt>Chains</dt><dd>5</dd></div>
+        </dl>
       </div>
+
+      <figure class="vd-diagram" aria-label="Where 1 ETH of trading goes">
+        <figcaption>1 ETH traded · 1% fee</figcaption>
+        <svg viewBox="0 0 320 260" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="vdRib" x1="0" x2="1"><stop offset="0" stop-color="#f4f1ff"/><stop offset=".55" stop-color="#a99bff"/><stop offset="1" stop-color="#5b3bf5"/></linearGradient>
+          </defs>
+          <path class="vd-pipe-line" d="M70 40 C 150 40, 150 130, 230 130" stroke="url(#vdRib)" stroke-width="18"/>
+          <path class="vd-pipe-line" d="M70 40 C 150 40, 150 200, 230 205" stroke="#2c2843" stroke-width="9"/>
+          <path class="vd-pipe-line" d="M230 130 C 260 130, 260 92, 290 92" stroke="#a99bff" stroke-width="13"/>
+          <path class="vd-pipe-line" d="M230 130 C 260 130, 260 168, 290 168" stroke="#5b3bf5" stroke-width="5"/>
+          <path class="vd-spark" d="M70 40 C 150 40, 150 130, 230 130"/>
+          <path class="vd-spark" d="M70 40 C 150 40, 150 200, 230 205"/>
+          <path class="vd-spark" d="M230 130 C 260 130, 260 92, 290 92"/>
+          <path class="vd-spark" d="M230 130 C 260 130, 260 168, 290 168"/>
+        </svg>
+        <div class="vd-node n-fee"><b>0.0100</b><span>trading fee</span></div>
+        <div class="vd-node n-router"><b>0.0070</b><span>fee router</span></div>
+        <div class="vd-node n-pons"><b>0.0030</b><span>Pons</span></div>
+        <div class="vd-node n-vault"><b>0.0056</b><span>vault</span></div>
+        <div class="vd-node n-tre"><b>0.0014</b><span>treasury</span></div>
+      </figure>
     </section>
 
-    <div class="d-layout">
-      <aside class="d-toc" id="toc">
-        <b>On this page</b>
-        <a href="#overview">Overview</a>
-        <a href="#flow">How it works</a>
-        <a href="#launch">Launching a coin</a>
-        <a href="#fees">Fees and the fee router</a>
-        <a href="#vault">The vault</a>
-        <a href="#policies">NFT policies</a>
-        <a href="#giveaways">Giveaways</a>
-        <a href="#chains">Other chains</a>
-        <a href="#keeper">The keeper</a>
-        <a href="#data">Prices and data</a>
-        <a href="#contracts">Contracts</a>
-        <a href="#risks">Security and risks</a>
-        <a href="#faq">FAQ</a>
-        <a href="#glossary">Glossary</a>
-      </aside>
+    <!-- ============================================================ chapter bar -->
+    <nav class="vd-bar" id="toc" aria-label="Chapters">
+      <a href="#basics">Basics</a>
+      <a href="#launch">Launch</a>
+      <a href="#money">Money</a>
+      <a href="#vault">Vault</a>
+      <a href="#giveaways">Giveaways</a>
+      <a href="#chains">Other chains</a>
+      <a href="#keeper">Keeper</a>
+      <a href="#contracts">Contracts</a>
+      <a href="#risks">Risks</a>
+      <a href="#faq">FAQ</a>
+    </nav>
 
-      <article class="d-body">
-        <section id="overview">
-          <h2><span>01</span> Overview</h2>
-          <p>Most memecoins pay their creator a cut of trading fees and that is where the money ends. Vaul routes that cut somewhere more interesting. When you launch, you pick an NFT collection. The coin's creator fees are collected by a contract that splits them: <b>80% into a vault</b> tied to your collection and 20% to the Vaul treasury. As the vault fills up, it buys floor NFTs from that collection, one at a time, at the cheapest listed price.</p>
-          <p>What happens to those NFTs is decided at launch and locked forever. They can be raffled to the coin's holders, kept in the vault as a growing on-chain collection, or burned to shrink the collection's supply.</p>
-          <div class="callout">
-            <b>In one sentence</b>
-            <p>Trading your coin makes its vault buy floor NFTs, and holding your coin gives you a chance to win them.</p>
-          </div>
-        </section>
+    <div class="vd-body">
+      <!-- ============================================================ basics -->
+      <section class="vd-ch" id="basics">
+        <header><span>Basics</span><h2>One coin, one collection, one vault</h2></header>
+        <p>Most memecoins pay their creator a cut of trading fees, and that is where the money stops. On Vaul the cut goes to work. You pick an NFT collection at launch, and a contract splits the coin's creator fees: <b>80% into a vault</b> tied to that collection and 20% to the Vaul treasury. As the vault fills, it buys the cheapest listed NFT from the collection, one at a time.</p>
+        <ol class="vd-pipe">
+          <li><i><svg viewBox="0 0 24 24"><path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.1 2.1 0 0 0-2.9-.1zM12 15l-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22 22 0 0 1-4 2z"/></svg></i><div><b>Launch</b><p>Pick a collection, a policy and a creator tax. One transaction creates the coin on Pons plus its vault and fee router.</p></div></li>
+          <li><i><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg></i><div><b>Trade</b><p>People buy and sell on the Pons bonding curve. Every trade pays a small fee.</p></div></li>
+          <li><i><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></i><div><b>Harvest</b><p>The fee router collects the creator share and splits it 80/20 between vault and treasury.</p></div></li>
+          <li><i><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 14l3-3 2 2 3-4"/></svg></i><div><b>Collect</b><p>Once the vault can afford the floor, it buys the cheapest listing from its collection.</p></div></li>
+          <li><i><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></i><div><b>Reward</b><p>The NFT is raffled to holders, held forever or burned, whichever the creator locked in.</p></div></li>
+        </ol>
+        <blockquote class="vd-quote">Trading your coin makes its vault buy floor NFTs. Holding your coin gives you a chance to win them.</blockquote>
+      </section>
 
-        <section id="flow">
-          <h2><span>02</span> How it works</h2>
-          <ol class="flow">
-            <li><i>1</i><b>Launch</b><p>Pick a collection, a policy and a creator tax. One transaction creates the coin on Pons plus its vault and fee router.</p></li>
-            <li><i>2</i><b>Trade</b><p>People buy and sell the coin on the Pons bonding curve. Every trade pays a small fee.</p></li>
-            <li><i>3</i><b>Harvest</b><p>The fee router collects the creator share and splits it: 80% to the vault, 20% to the treasury.</p></li>
-            <li><i>4</i><b>Collect</b><p>Once the vault can afford the floor, it buys the cheapest listed NFT from its collection.</p></li>
-            <li><i>5</i><b>Reward</b><p>The NFT is raffled to holders, held forever, or burned, whichever the creator locked in.</p></li>
-          </ol>
-        </section>
+      <!-- ============================================================ launch -->
+      <section class="vd-ch" id="launch">
+        <header><span>Launch</span><h2>Four steps, one signature</h2></header>
+        <p>The <a href="launch">Launch</a> page walks you through it. Nothing is sent until you confirm the last step in your wallet.</p>
+        <div class="vd-grid4">
+          <article><small>01</small><b>Your coin</b><p>Name, ticker and image. Upload straight from your phone; Pons stores the image with the coin. Add a description, links and a muse.ai video if you like.</p></article>
+          <article><small>02</small><b>Collection</b><p>Choose the NFT collection the coin will collect. Search by name or filter by chain. Every listed collection trades on OpenSea.</p></article>
+          <article><small>03</small><b>Rules</b><p>Pick what happens to the NFTs (raffle, hold or burn) and an optional creator tax of up to 10%.</p></article>
+          <article><small>04</small><b>Confirm</b><p>Review and sign one transaction. You pay the Pons launch fee plus gas. Vaul charges nothing.</p></article>
+        </div>
+        <div class="vd-note warn"><b>Locked forever.</b> The collection, the NFT policy and the fee recipient cannot change after launch, not by the creator and not by Vaul.</div>
+        <p class="vd-small">Wallet capping gas at 1.2M? The launch page estimates the real amount and sends it with the transaction.</p>
+      </section>
 
-        <section id="launch">
-          <h2><span>03</span> Launching a coin</h2>
-          <p>The <a href="launch">Launch</a> page walks you through four short steps. Nothing is sent until you confirm the final transaction in your wallet.</p>
-          <div class="steps4">
-            <div><i>Step 1</i><b>Your coin</b><p>Name, ticker and image. You can upload a picture straight from your phone; it is resized and stored for you, and Pons saves it with the coin. Add a description, links and a muse.ai video if you like.</p></div>
-            <div><i>Step 2</i><b>Collection</b><p>Choose which NFT collection the coin will collect. Search by name or filter by chain. Every listed collection is active and tradable on OpenSea.</p></div>
-            <div><i>Step 3</i><b>Rules</b><p>Choose what happens to the NFTs (raffle, hold or burn) and an optional creator tax of up to 10% on top of the normal trading fee.</p></div>
-            <div><i>Step 4</i><b>Confirm</b><p>Review everything, then sign one transaction. You pay only the Pons launch fee plus gas. Vaul charges nothing to launch.</p></div>
-          </div>
-          <div class="callout warn">
-            <b>Locked forever</b>
-            <p>The collection, the NFT policy and the fee recipient cannot be changed after launch, not even by the creator or by Vaul. Double-check them before you confirm.</p>
-          </div>
-          <p class="small muted">Using a wallet that caps gas (some mobile wallets stop at 1.2M gas)? The launch page estimates the real amount and sends it with the transaction, so the launch fits.</p>
-        </section>
+      <!-- ============================================================ money -->
+      <section class="vd-ch" id="money">
+        <header><span>Money</span><h2>Where every fee goes</h2></header>
+        <p>Pons charges a fee on every buy and sell on the curve and passes the creator's share, plus any creator tax, to the coin's <b>fee router</b>. The router is created for your coin, set as its creator-fee recipient on Pons, and has no function that could hand that role to anyone else.</p>
+        <div class="vd-split">
+          <div class="vd-split-bar"><i style="--w:56%">Vault 56%</i><i style="--w:14%">Vaul 14%</i><i style="--w:30%">Pons 30%</i></div>
+          <p class="vd-small">Share of the 1% trading fee with no creator tax: 0.0056 ETH to the vault, 0.0014 ETH to the treasury and 0.0030 ETH to Pons for every 1 ETH traded.</p>
+        </div>
+        <div class="vd-two">
+          <div><h3>Harvest</h3><p><code>harvest()</code> sweeps the curve, claims from the Pons fee escrow and sends the split in one step. <b>Anyone can call it</b>, from the coin page or on-chain, and the keeper calls it about every 30 minutes.</p></div>
+          <div><h3>Creator tax</h3><p>An optional tax adds to the router's income in the same 80/20 split. Traders pay it, so a high tax can slow trading. Most coins use 0–2%.</p></div>
+        </div>
+      </section>
 
-        <section id="fees">
-          <h2><span>04</span> Fees and the fee router</h2>
-          <p>Pons charges a trading fee on every buy and sell on the curve and passes the creator's share of it, plus any creator tax, to the coin's <b>fee router</b>. The router is a small contract created for your coin. It is set as the coin's creator-fee recipient on Pons and has no function that could ever hand that role to someone else.</p>
-          <div class="fee-flow">
-            <div class="ff-head">Every 1 ETH traded on the curve (1% fee, no creator tax)</div>
-            <div class="ff-bar"><i style="width:56%">Vault</i><i style="width:14%">Vaul</i><i style="width:30%">Pons</i></div>
-            <table class="table ff-table">
-              <tr><td>Trading fee (1%)</td><td>0.0100 ETH</td></tr>
-              <tr><td>Pons keeps (30% of the fee)</td><td>0.0030 ETH</td></tr>
-              <tr><td>Creator share to the fee router (70%)</td><td>0.0070 ETH</td></tr>
-              <tr class="hl"><td>→ Collection vault (80%)</td><td>0.0056 ETH</td></tr>
-              <tr><td>→ Vaul treasury (20%)</td><td>0.0014 ETH</td></tr>
-            </table>
-          </div>
-          <p><code>harvest()</code> moves the money. It sweeps the curve, claims from the Pons fee escrow and sends the split in one step. <b>Anyone can call it</b>, from the Harvest button on any coin page or directly on-chain. The keeper also calls it automatically about every 30 minutes, so you never have to.</p>
-          <p>A creator tax adds to the router's income in the same 80/20 split. It is charged to traders, so a high tax can slow trading. Most coins use 0–2%.</p>
-        </section>
+      <!-- ============================================================ vault -->
+      <section class="vd-ch" id="vault">
+        <header><span>Vault</span><h2>Built to do exactly one thing</h2></header>
+        <p>Each coin has its own vault. The only thing it can do with ETH is buy NFTs from its collection, and the contract checks these rules on every purchase:</p>
+        <ul class="vd-rules">
+          <li>Pays only through an allow-listed marketplace: <b>Seaport 1.6</b>, the protocol behind OpenSea.</li>
+          <li>Never pays above a price ceiling the keeper posts from live floors. A ceiling expires after <b>1 hour</b>.</li>
+          <li>Reverts unless it ends up owning the exact NFT from its own collection, for no more than the stated price.</li>
+          <li>Rejects NFTs from any other collection.</li>
+          <li>Has <b>no withdraw function</b>. ETH leaves only as payment for NFTs.</li>
+        </ul>
+        <h3 class="vd-h3">What happens to the NFTs</h3>
+        <div class="vd-policies">
+          <article><i><svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7"/></svg></i><b>Raffle</b><p>Each NFT is given to a holder, drawn on-chain with tickets by balance. The most popular choice.</p></article>
+          <article><i><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-6 7 6v11M9 21v-6h6v6"/></svg></i><b>Hold</b><p>NFTs stay in the vault for good, a permanent on-chain collection owned by the coin itself.</p></article>
+          <article><i><svg viewBox="0 0 24 24"><path d="M12 22c4.4 0 7-2.9 7-6.6 0-3.1-2-5.4-3.5-7.4-.4 2-1.5 3-2.5 3.5C13.5 8 12 4.5 9 2c.3 3-1.2 5.3-2.7 7.3C5 11 5 12.5 5 15.4 5 19.1 7.6 22 12 22z"/></svg></i><b>Burn</b><p>Every NFT bought is destroyed, shrinking the collection's supply like a buyback-and-burn.</p></article>
+        </div>
+        <p>Every balance, harvest, purchase and giveaway shows on the coin page and in <a href="activity">Activity</a>, read straight from the chain.</p>
+      </section>
 
-        <section id="vault">
-          <h2><span>05</span> The vault</h2>
-          <p>Each coin has its own vault. It is deliberately boring: the only thing it can do with ETH is buy NFTs from its collection, under strict rules that the contract checks on every purchase.</p>
-          <ul class="checks">
-            <li>It can only pay through an allow-listed marketplace, Seaport 1.6 (the protocol behind OpenSea).</li>
-            <li>Every purchase must be at or below a price ceiling that the keeper posts from live floor data. A ceiling expires after <b>1 hour</b>.</li>
-            <li>The purchase reverts unless the vault ends up owning the exact NFT from its own collection and spent no more than the stated price.</li>
-            <li>It rejects NFTs from any other collection.</li>
-            <li>There is <b>no withdraw function</b>. ETH leaves only as payment for NFTs.</li>
-          </ul>
-          <p>You can watch every vault live: its balance, each harvest, each purchase and each giveaway appear on the coin page and in <a href="activity">Activity</a>, read straight from the chain.</p>
-        </section>
+      <!-- ============================================================ giveaways -->
+      <section class="vd-ch" id="giveaways">
+        <header><span>Giveaways</span><h2>Nobody picks the winner</h2></header>
+        <p>Not the creator, not the keeper, not Vaul. A raffle runs in five public steps:</p>
+        <ol class="vd-steps">
+          <li><b>Snapshot</b><p>The keeper replays every transfer of the coin and gives each wallet tickets by balance. Contracts such as the curve, pools and the vault get none. The Merkle root goes on-chain; the full list with proofs is published for anyone to check.</p></li>
+          <li><b>15 minutes public</b><p>The snapshot must be public for 15 minutes before a draw can start.</p></li>
+          <li><b>Commit</b><p>Anyone calls <code>commitDraw</code>, pinning a Robinhood Chain block 20 blocks ahead. Nobody can know its hash yet.</p></li>
+          <li><b>Draw</b><p>Anyone calls <code>draw</code>; the winning ticket comes from that block's hash. If nobody draws within 256 blocks, the commit resets and is tried again.</p></li>
+          <li><b>Delivery</b><p>The keeper sends the NFT using the winner's proof. Winners can also claim it on <a href="claims">Giveaways</a>.</p></li>
+        </ol>
+        <div class="vd-note">Won an NFT on <b>Solana</b>? Open Giveaways with the winning wallet and enter your Solana address once. The keeper sends it there.</div>
+      </section>
 
-        <section id="policies">
-          <h2><span>06</span> NFT policies</h2>
-          <div class="policy-grid">
-            <div><i>🎁</i><b>Raffle to holders</b><p>Each NFT the vault buys is given away. Holders get tickets in proportion to their balance, and a winner is drawn on-chain. The most popular choice: it rewards the community directly.</p></div>
-            <div><i>🏛</i><b>Hold forever</b><p>The NFTs stay in the vault for good, building a permanent on-chain collection owned by nobody but the coin itself.</p></div>
-            <div><i>🔥</i><b>Burn</b><p>Every NFT bought is destroyed, permanently reducing the collection's supply, like a buyback-and-burn for the collection.</p></div>
-          </div>
-        </section>
+      <!-- ============================================================ chains -->
+      <section class="vd-ch" id="chains">
+        <header><span>Other chains</span><h2>Collecting beyond Robinhood Chain</h2></header>
+        <p>Coins always live on Robinhood Chain but can collect on <b>Ethereum, Base, Hyperliquid and Solana</b>. A Robinhood Chain contract cannot buy on another chain directly, so these coins use a vault with extra safeguards:</p>
+        <ol class="vd-steps">
+          <li><b>Announce</b><p>When the vault can afford the floor, the keeper announces a withdrawal of the exact amount. It shows on the coin page.</p></li>
+          <li><b>Wait 1 hour</b><p>The money cannot move for an hour, and the registry owner can cancel it if anything looks wrong.</p></li>
+          <li><b>Bridge and buy</b><p>The keeper bridges with Relay and buys the cheapest OpenSea listing on the target chain.</p></li>
+          <li><b>Record</b><p>The purchase is written back to the vault with its transaction hash, so every buy has a public receipt.</p></li>
+        </ol>
+        <div class="vd-note warn"><b>More trust than Robinhood collections.</b> While funds are bridged and the NFT waits on the other chain, they sit in the keeper's wallet there. The delay, the cancel option and the receipts limit this, but it is not as trustless as a Robinhood Chain vault.</div>
+      </section>
 
-        <section id="giveaways">
-          <h2><span>07</span> Giveaways</h2>
-          <p>Raffles are built so that nobody, not the creator, not the keeper and not Vaul, can choose the winner.</p>
-          <ol class="timeline">
-            <li><b>Snapshot</b><p>When the vault gets an NFT, the keeper replays every transfer of the coin and gives each wallet tickets in proportion to its balance. Contracts such as the curve, pools and the vault get none. The snapshot's Merkle root goes on-chain and the full list, with proofs, is published as a file anyone can check.</p></li>
-            <li><b>Public window, 15 minutes</b><p>The snapshot must be public for 15 minutes before a draw can start, so anyone can verify it.</p></li>
-            <li><b>Commit</b><p>Anyone calls <code>commitDraw</code>, which pins a Robinhood Chain block 20 blocks in the future. Nobody can know that block's hash yet.</p></li>
-            <li><b>Draw</b><p>Once the block exists, anyone calls <code>draw</code>. The winning ticket is derived from that block's hash. If nobody draws within 256 blocks, the commit simply resets and is tried again.</p></li>
-            <li><b>Delivery</b><p>The keeper delivers the NFT to the winner using the winner's Merkle proof. Winners can also claim it themselves on the <a href="claims">Giveaways</a> page.</p></li>
-          </ol>
-          <div class="callout">
-            <b>Won an NFT on Solana?</b>
-            <p>Solana uses different addresses, so open the Giveaways page with the winning wallet and enter your Solana address once. The keeper then sends the NFT there.</p>
-          </div>
-        </section>
+      <!-- ============================================================ keeper -->
+      <section class="vd-ch" id="keeper">
+        <header><span>Keeper</span><h2>The bot that keeps vaults moving</h2></header>
+        <p>An automated job runs every 30 minutes and does the routine work. Every job it does can also be done by anyone else.</p>
+        <div class="vd-two vd-cando">
+          <div class="yes"><h3>Does</h3><ul>
+            <li>Harvests fees for every coin</li>
+            <li>Posts a 1-hour price ceiling from live floors</li>
+            <li>Buys the cheapest listing once a vault can afford it</li>
+            <li>Runs snapshots, commits, draws and deliveries</li>
+            <li>Bridges, buys and records receipts on other chains</li>
+          </ul></div>
+          <div class="no"><h3>Cannot</h3><ul>
+            <li>Withdraw ETH from a Robinhood Chain vault</li>
+            <li>Change a coin's collection or policy</li>
+            <li>Send an NFT anywhere except to a raffle winner with a valid proof</li>
+          </ul></div>
+        </div>
+        <h3 class="vd-h3">Where the numbers come from</h3>
+        <ul class="vd-list">
+          <li><b>Charts</b> are live GeckoTerminal embeds, first on the Pons curve, then on the pool after graduation.</li>
+          <li><b>Floors</b> on the home page come from OpenSea and refresh every 6 hours; USD values use current rates.</li>
+          <li><b>Activity, Gallery and Analytics</b> are built from on-chain events, so they always match the chain.</li>
+          <li><b>Collections</b> are curated for activity; the registry owner can add more.</li>
+        </ul>
+      </section>
 
-        <section id="chains">
-          <h2><span>08</span> Collections on other chains</h2>
-          <p>Coins always live on Robinhood Chain, but they can collect NFTs on <b>Ethereum, Base, Hyperliquid and Solana</b> too. Because a Robinhood Chain contract cannot buy on another chain directly, these coins use a special vault with extra safeguards:</p>
-          <ol class="timeline">
-            <li><b>Announce</b><p>When the vault can afford the floor, the keeper announces a withdrawal of the exact amount needed. It is shown on the coin page.</p></li>
-            <li><b>Wait 1 hour</b><p>The money cannot move for 1 hour. During that time the registry owner can cancel it if anything looks wrong.</p></li>
-            <li><b>Bridge and buy</b><p>The keeper bridges the funds with Relay and buys the cheapest listing on OpenSea on the target chain.</p></li>
-            <li><b>Record</b><p>The purchase is written back to the vault on Robinhood Chain with its transaction hash, so every buy has a public receipt.</p></li>
-          </ol>
-          <div class="callout warn">
-            <b>More trust than Robinhood collections</b>
-            <p>While funds are bridged and the NFT waits on the other chain, they are held by the keeper's wallet there. The delay, the cancel option and the public receipts limit this, but it is not as trustless as a Robinhood Chain vault.</p>
-          </div>
-        </section>
+      <!-- ============================================================ contracts -->
+      <section class="vd-ch" id="contracts">
+        <header><span>Contracts</span><h2>Deployed on Robinhood Chain</h2></header>
+        <p>Mainnet, chain id 4663. Tap an address to open it in the explorer.</p>
+        <div class="vd-addrs" id="addresses"></div>
+      </section>
 
-        <section id="keeper">
-          <h2><span>09</span> The keeper</h2>
-          <p>The keeper is an automated bot that runs every 30 minutes. It does the routine work so coins keep collecting without anyone lifting a finger.</p>
-          <table class="table d-table">
-            <thead><tr><th>Job</th><th>What it does</th></tr></thead>
-            <tbody>
-              <tr><td>Harvest</td><td>Collects fees for every coin and splits them into vault and treasury.</td></tr>
-              <tr><td>Price ceiling</td><td>Reads live floors and posts a 1-hour ceiling for each vault.</td></tr>
-              <tr><td>Sweep</td><td>Buys the cheapest listing once a vault can afford it.</td></tr>
-              <tr><td>Giveaways</td><td>Takes snapshots, opens raffles, commits and draws, and delivers prizes.</td></tr>
-              <tr><td>Other chains</td><td>Announces withdrawals, bridges, buys and records receipts.</td></tr>
-            </tbody>
-          </table>
-          <p><b>What it cannot do:</b> withdraw ETH from a Robinhood Chain vault, change any coin's collection or policy, or send an NFT anywhere except to a raffle winner with a valid proof. Every job it does can also be done by anyone else.</p>
-        </section>
+      <!-- ============================================================ risks -->
+      <section class="vd-ch" id="risks">
+        <header><span>Risks</span><h2>Read before you ape</h2></header>
+        <ul class="vd-risks">
+          <li>The contracts are open source and tested, including on a fork of mainnet, but <b>not independently audited</b>.</li>
+          <li>The keeper picks the price ceiling and the listing. The contract bounds this, but a dishonest keeper could overpay up to the ceiling.</li>
+          <li>For other chains, funds and NFTs sit in the keeper's wallet while bridging and until delivery.</li>
+          <li>After graduation, pool fees reach the escrow when Pons's operator sweeps them.</li>
+          <li>Memecoins are extremely volatile and can go to zero. Nothing here is financial advice.</li>
+        </ul>
+      </section>
 
-        <section id="data">
-          <h2><span>10</span> Prices and data</h2>
-          <ul class="checks">
-            <li><b>Charts:</b> each coin page embeds a live GeckoTerminal chart for the coin, first on its Pons curve and later on its pool after graduation.</li>
-            <li><b>Top floors:</b> floor prices, owners and volume on the home page come from OpenSea and refresh every 6 hours. USD values use current exchange rates.</li>
-            <li><b>Activity, Gallery and Analytics:</b> built entirely from on-chain events, so they always match the chain.</li>
-            <li><b>Collections:</b> the list of collections is curated for activity; a new collection can be added by the registry owner.</li>
-          </ul>
-        </section>
-
-        <section id="contracts">
-          <h2><span>11</span> Contracts</h2>
-          <p>All contracts are deployed on Robinhood Chain mainnet (chain id 4663). Tap an address to open it in the explorer.</p>
-          <div class="d-addrs" id="addresses"></div>
-        </section>
-
-        <section id="risks">
-          <h2><span>12</span> Security and risks</h2>
-          <ul class="risks">
-            <li>The contracts are open source and tested, including against a fork of Robinhood Chain mainnet, but they have <b>not been independently audited</b>.</li>
-            <li>The keeper chooses the price ceiling and which listing to buy. The contract bounds this, but a dishonest keeper could overpay up to the ceiling.</li>
-            <li>For collections on other chains, funds and NFTs are held by the keeper's wallet during bridging and until delivery (see <a href="#chains">Other chains</a>).</li>
-            <li>After a coin graduates to its pool, pool fees reach the escrow when Pons's operator sweeps them.</li>
-            <li>Memecoins are extremely volatile and can go to zero. Nothing here is financial advice.</li>
-          </ul>
-        </section>
-
-        <section id="faq">
-          <h2><span>13</span> FAQ</h2>
-          <div class="faq">
-            <details><summary>Can the creator take money out of the vault?</summary><p>No. A Robinhood Chain vault has no withdraw function. Its ETH can only leave as payment for NFTs from its own collection.</p></details>
-            <details><summary>How much does it cost to launch?</summary><p>Only the Pons launch fee (currently 0.0005 ETH) plus network gas. Vaul charges nothing to launch.</p></details>
-            <details><summary>Do I earn anything as a creator?</summary><p>Not directly. The creator share of fees goes to the vault and treasury. The idea is that a coin that collects blue-chip NFTs and gives them to holders attracts more trading and more holders.</p></details>
-            <details><summary>How do I get a chance to win NFTs?</summary><p>Hold a coin whose policy is Raffle. Every time its vault buys an NFT, a snapshot is taken and your tickets are based on your balance at that moment.</p></details>
-            <details><summary>When does the vault buy?</summary><p>As soon as its balance covers the cheapest listing under the posted ceiling. The coin page shows the vault balance and the progress toward the next buy.</p></details>
-            <details><summary>Can a collection be removed?</summary><p>The registry owner can stop listing a collection for new launches. Existing coins keep collecting the collection they were launched with.</p></details>
-            <details><summary>Can I add a video to my coin?</summary><p>Yes. Upload it to muse.ai and paste its link (muse.ai/v/…) when you launch, or later with "Add a muse.ai video" on your coin page. It plays at the top of the coin page. Only the wallet that launched the coin can add, change or remove the video; you sign a message, which costs no gas. The video is kept on Vaul, not on-chain, so it does not show on Pons.</p></details>
-            <details><summary>What if the keeper stops?</summary><p>Harvest, commit, draw and claim are all public functions. Anyone can call them, so fees and prizes are never stuck.</p></details>
-          </div>
-        </section>
-
-        <section id="glossary">
-          <h2><span>14</span> Glossary</h2>
-          <dl class="gloss">
-            <dt>Floor</dt><dd>The lowest price at which an NFT from a collection is currently listed for sale.</dd>
-            <dt>Bonding curve</dt><dd>Pons's automatic market for a new coin: the price rises as people buy and falls as they sell.</dd>
-            <dt>Graduation</dt><dd>When a coin's curve fills up, its liquidity moves to a regular trading pool.</dd>
-            <dt>Fee router</dt><dd>The contract that receives a coin's creator fees and splits them 80/20.</dd>
-            <dt>Vault</dt><dd>The contract that holds a coin's ETH and the NFTs it buys.</dd>
-            <dt>Keeper</dt><dd>The automated bot that performs routine calls such as harvests, buys and draws.</dd>
-            <dt>Merkle root</dt><dd>A short fingerprint of the full ticket list. It lets anyone prove their tickets without storing the whole list on-chain.</dd>
-            <dt>Seaport</dt><dd>The open marketplace protocol used by OpenSea, through which vaults buy NFTs.</dd>
-          </dl>
-        </section>
-      </article>
+      <!-- ============================================================ faq -->
+      <section class="vd-ch" id="faq">
+        <header><span>FAQ</span><h2>Quick answers</h2></header>
+        <div class="faq">
+          <details><summary>Can the creator take money out of the vault?</summary><p>No. A Robinhood Chain vault has no withdraw function. Its ETH can only leave as payment for NFTs from its own collection.</p></details>
+          <details><summary>How much does it cost to launch?</summary><p>Only the Pons launch fee (currently 0.0005 ETH) plus network gas. Vaul charges nothing to launch.</p></details>
+          <details><summary>Do I earn anything as a creator?</summary><p>Not directly. The creator share goes to the vault and treasury. A coin that collects blue-chip NFTs and gives them to holders tends to attract more trading and more holders.</p></details>
+          <details><summary>How do I get a chance to win NFTs?</summary><p>Hold a coin whose policy is Raffle. Each time its vault buys an NFT, a snapshot is taken and your tickets follow your balance at that moment.</p></details>
+          <details><summary>When does the vault buy?</summary><p>As soon as its balance covers the cheapest listing under the posted ceiling. The coin page shows the balance and the progress toward the next buy.</p></details>
+          <details><summary>Can a collection be removed?</summary><p>The registry owner can stop listing a collection for new launches. Existing coins keep collecting the collection they launched with.</p></details>
+          <details><summary>Can I add a video to my coin?</summary><p>Yes. Upload it to muse.ai and paste the link (muse.ai/v/…) at launch, or later on your coin page. Only the wallet that launched the coin can change it, by signing a message (no gas). The video is kept on Vaul, not on-chain.</p></details>
+          <details><summary>What if the keeper stops?</summary><p>Harvest, commit, draw and claim are public functions. Anyone can call them, so fees and prizes are never stuck.</p></details>
+        </div>
+        <h3 class="vd-h3">Glossary</h3>
+        <dl class="vd-gloss">
+          <div><dt>Floor</dt><dd>The lowest listed price for an NFT in a collection.</dd></div>
+          <div><dt>Bonding curve</dt><dd>Pons's automatic market for a new coin: price rises as people buy and falls as they sell.</dd></div>
+          <div><dt>Graduation</dt><dd>When the curve fills up and liquidity moves to a regular pool.</dd></div>
+          <div><dt>Fee router</dt><dd>The contract that receives a coin's creator fees and splits them 80/20.</dd></div>
+          <div><dt>Vault</dt><dd>The contract that holds a coin's ETH and the NFTs it buys.</dd></div>
+          <div><dt>Keeper</dt><dd>The bot that performs routine calls such as harvests, buys and draws.</dd></div>
+          <div><dt>Merkle root</dt><dd>A short fingerprint of the ticket list that lets anyone prove their tickets.</dd></div>
+          <div><dt>Seaport</dt><dd>The open marketplace protocol behind OpenSea, used by vaults to buy.</dd></div>
+        </dl>
+      </section>
     </div>
   </main>
   <footer id="site-footer"></footer>
@@ -261,30 +263,39 @@
     ];
     const el = document.getElementById("addresses");
     const draw = () => (el.innerHTML = rows.filter(([, a]) => isAddress(a || "")).map(([k, a, d]) => `
-      <div class="d-addr"><div><b>${k}</b><small>${d}</small></div>
-        <span><a class="mono" href="${CONFIG.explorer}/address/${a}" target="_blank" rel="noopener">${a.slice(0, 8)}…${a.slice(-6)}</a>${copyBtn(a, "Copy")}</span></div>`).join(""));
+      <div class="vd-addr">
+        <div class="vd-addr-name"><b>${k}</b><small>${d}</small></div>
+        <div class="vd-addr-val"><a class="mono" href="${CONFIG.explorer}/address/${a}" target="_blank" rel="noopener">${a.slice(0, 8)}…${a.slice(-6)}</a>${copyBtn(a, "Copy")}</div>
+      </div>`).join(""));
     draw();
 
     collectionMeta().then((m) => { if (m.length) document.getElementById("gCols").textContent = m.length; });
     client.readContract({ address: CONFIG.ponsFactory, abi: ABI.pons, functionName: "launchFee" })
       .then((f) => (document.getElementById("gFee").textContent = `${eth(f, 5)} ETH`)).catch(() => {});
     if (isAddress(CONFIG.launcher)) {
-      const registry = await client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" });
-      const [treasury, keeper] = await Promise.all([
-        client.readContract({ address: registry, abi: ABI.registry, functionName: "treasury" }).catch(() => null),
-        client.readContract({ address: registry, abi: ABI.registry, functionName: "keeper" }).catch(() => null),
-      ]);
-      rows.splice(2, 0, ["Registry", registry, "Lists collections and sets the keeper and treasury"],
-        ["Treasury", treasury, "Receives the 20% protocol share"], ["Keeper", keeper, "The bot's wallet"]);
-      draw();
+      client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" }).then(async (registry) => {
+        const [treasury, keeper] = await Promise.all([
+          client.readContract({ address: registry, abi: ABI.registry, functionName: "treasury" }).catch(() => null),
+          client.readContract({ address: registry, abi: ABI.registry, functionName: "keeper" }).catch(() => null),
+        ]);
+        rows.splice(2, 0, ["Registry", registry, "Lists collections and sets the keeper and treasury"],
+          ["Treasury", treasury, "Receives the 20% protocol share"], ["Keeper", keeper, "The bot's wallet"]);
+        draw();
+      }).catch(() => {});
     }
 
-    // Highlight the section in view.
-    const links = [...document.querySelectorAll("#toc a")];
+    // Highlight the chapter in view and keep its tab visible in the bar.
+    const bar = document.getElementById("toc");
+    const links = [...bar.querySelectorAll("a")];
     const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-      if (e.isIntersecting) links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === `#${e.target.id}`));
-    }), { rootMargin: "-30% 0px -60% 0px" });
-    document.querySelectorAll(".d-body section").forEach((s) => io.observe(s));
+      if (!e.isIntersecting) return;
+      links.forEach((a) => {
+        const on = a.getAttribute("href") === `#${e.target.id}`;
+        a.classList.toggle("on", on);
+        if (on) bar.scrollTo({ left: a.offsetLeft - 16, behavior: "smooth" });
+      });
+    }), { rootMargin: "-35% 0px -60% 0px" });
+    document.querySelectorAll(".vd-ch").forEach((s) => io.observe(s));
   </script>
 </body>
 </html>
