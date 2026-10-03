@@ -214,7 +214,7 @@ function appKit() {
     const kit = createAppKit({
       adapters: [adapter], networks: [ROBINHOOD_NETWORK], defaultNetwork: ROBINHOOD_NETWORK, projectId,
       metadata: {
-        name: "Vaul", description: "Coins that collect NFTs", url: location.origin,
+        name: "Vaul", description: "Memecoins with a vault inside", url: location.origin,
         icons: [new URL("assets/brand/vaul-512.png", location.href).href],
       },
       features: { analytics: false, email: false, socials: false, swaps: false, onramp: false, send: false },

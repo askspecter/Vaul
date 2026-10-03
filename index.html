@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vaul — coins that collect NFTs</title>
+  <title>Vaul — memecoins with a vault inside</title>
   <!-- social -->
-  <meta name="description" content="Launch a coin on Robinhood Chain. Every trade fills a vault that buys floor NFTs for its holders." />
+  <meta name="description" content="Create a coin on Robinhood Chain, link it to an NFT collection, and let its fees sweep that collection for the people holding it." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Vaul" />
-  <meta property="og:title" content="Vaul: Trade coins. Own the floor." />
-  <meta property="og:description" content="Launch a coin on Robinhood Chain. Every trade fills a vault that buys floor NFTs for its holders." />
+  <meta property="og:title" content="Vaul: Memecoins with a vault inside." />
+  <meta property="og:description" content="Create a coin on Robinhood Chain, link it to an NFT collection, and let its fees sweep that collection for the people holding it." />
   <meta property="og:url" content="https://vaul.app/" />
   <meta property="og:image" content="https://vaul.app/assets/brand/og.jpg" />
   <meta property="og:image:width" content="2400" />
   <meta property="og:image:height" content="1260" />
-  <meta property="og:image:alt" content="Vaul: Trade coins. Own the floor." />
+  <meta property="og:image:alt" content="Vaul: Memecoins with a vault inside." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@vauldotapp" />
-  <meta name="twitter:title" content="Vaul: Trade coins. Own the floor." />
-  <meta name="twitter:description" content="Launch a coin on Robinhood Chain. Every trade fills a vault that buys floor NFTs for its holders." />
+  <meta name="twitter:site" content="@UseVaul" />
+  <meta name="twitter:title" content="Vaul: Memecoins with a vault inside." />
+  <meta name="twitter:description" content="Create a coin on Robinhood Chain, link it to an NFT collection, and let its fees sweep that collection for the people holding it." />
   <meta name="twitter:image" content="https://vaul.app/assets/brand/og.jpg" />
   <!-- /social -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -35,8 +35,8 @@
 
   <main>
     <section class="hero">
-      <h1>Trade coins.<br /><em>Own the floor.</em></h1>
-      <p class="lead">Launch a Pons coin tied to an NFT collection on Robinhood Chain. 80% of its creator fees is locked in a vault that is only allowed to buy floor pieces from that collection, then hands them back to the community.</p>
+      <h1 class="hero-title">Memecoins with a <em>vault</em> inside.</h1>
+      <p class="lead">Create a coin on Robinhood Chain and link it to any listed NFT collection. 80% of its creator fees stream into an on-chain vault that can spend only on that collection's cheapest NFTs. What it buys is raffled to holders, kept or burned, exactly as set at launch.</p>
       <div class="cta">
         <a class="btn btn-dark btn-lg" href="launch">Launch a coin</a>
         <a class="btn btn-ghost btn-lg" href="explore">Explore coins</a>
@@ -47,20 +47,6 @@
         <div><b id="statNfts">0</b><span>NFTs collected</span></div>
         <div><b id="statVault">0</b><span>ETH in vaults</span></div>
       </div>
-    </section>
-
-    <section class="section top-nfts" id="top">
-      <div class="row-head">
-        <div>
-          <h2>Top floors</h2>
-          <p class="muted" id="floorsNote">The most valuable collections a coin can collect.</p>
-        </div>
-        <div class="rail-nav">
-          <button class="rail-btn" data-dir="-1" aria-label="Scroll left">←</button>
-          <button class="rail-btn" data-dir="1" aria-label="Scroll right">→</button>
-        </div>
-      </div>
-      <div class="rail" id="rail"><p class="empty">Loading…</p></div>
     </section>
 
     <section class="marquee" id="rules" aria-label="Vault rules">

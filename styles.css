@@ -201,6 +201,14 @@ h1, h2, h3, h4, .page-title, .sub { font-family: var(--display); font-weight: 70
 .hero .pill { justify-self: start; }
 h1 { font-size: clamp(40px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.05em; margin: 22px 0 20px; text-wrap: balance; }
 .lead { font-size: clamp(16px, 1.6vw, 18px); color: var(--muted); max-width: 540px; margin: 0; line-height: 1.6; }
+/* hero headline: one block, the word "vault" carries the ribbon and a hand-drawn swoosh under it */
+.hero-title { font-weight: 600; letter-spacing: -0.055em; max-width: 12ch; margin-bottom: 32px; }
+.hero-title em { position: relative; display: inline-block; font-weight: 700; padding-right: .04em; }
+.hero-title em::after {
+  content: ""; position: absolute; left: -2%; right: -4%; bottom: -0.12em; height: .22em; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23f4f1ff'/%3E%3Cstop offset='.5' stop-color='%23a99bff'/%3E%3Cstop offset='1' stop-color='%235b3bf5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M2 14 C 50 4, 120 2, 198 8' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+.hero .lead { border-left: 2px solid var(--accent); padding-left: 18px; }
 .cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 30px; }
 .stats {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 40px; max-width: 540px;
