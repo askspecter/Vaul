@@ -221,8 +221,8 @@ function appKit() {
       // Don't interrupt browsing with a "Switch Network" popup on every page;
       // the switch happens once, right before a transaction (see ensureChain).
       allowUnsupportedChain: true,
-      themeMode: "light",
-      themeVariables: { "--w3m-accent": "#7b5cff", "--w3m-border-radius-master": "3px", "--w3m-font-family": "Sora, system-ui, sans-serif" },
+      themeMode: "dark",
+      themeVariables: { "--w3m-accent": "#7b5cff", "--w3m-color-mix": "#000000", "--w3m-color-mix-strength": 20, "--w3m-border-radius-master": "2px", "--w3m-font-family": "Inter, system-ui, sans-serif" },
     });
     kit.subscribeAccount((s) => {
       if (s.isConnected && s.address) {
@@ -405,7 +405,7 @@ export function renderChrome(active) {
     const q = active === "collections" ? new URLSearchParams(location.search).get("q") || "" : "";
     header.innerHTML = `
       <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">${ICONS.menu}</button>
-      <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="Vaul" width="40" height="40" /></a>
+      <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="" width="32" height="32" /><span>Vaul</span></a>
       <nav class="nav-links" id="navLinks">
         <form class="nav-search" action="collections" role="search">
           <input name="q" type="search" placeholder="Search collections" aria-label="Search collections" value="${esc(q)}" />
@@ -435,6 +435,7 @@ export function renderChrome(active) {
     footer.className = "footer";
     footer.innerHTML = `
       <div>
+        <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="" width="32" height="32" /><span>Vaul</span></a>
         <p>Pons coins on Robinhood Chain whose creator fees buy NFT floors. Vault rules are enforced on-chain.</p>
       </div>
       <div class="foot-links">${NAV.map(([h, l]) => `<a href="${h}">${l}</a>`).join("")}</div>
@@ -630,13 +631,13 @@ export async function listedCollectionsDetailed() {
   })).then((rows) => rows.filter(Boolean));
 }
 
-export const COLORS = ["#ff5a3c", "#3b82f6", "#10b981", "#a855f7", "#f59e0b", "#ec4899", "#14b8a6", "#6366f1"];
+export const COLORS = ["#7b5cff", "#5b3bf5", "#a99bff", "#3d6bff", "#9d5cff", "#4a2fd0", "#6d8bff", "#b08cff"];
 export const colorFor = (s) => COLORS[[...String(s)].reduce((h, c) => h + c.charCodeAt(0), 0) % COLORS.length];
 
 /** Coin picture: the logo stored on the token, or a gradient tile with the ticker. Only http(s)
  *  logos are rendered, since the logo string is whatever the creator typed. */
 export function coinArt(c, cls) {
-  const tile = `<div class="${cls}" style="background:linear-gradient(135deg, ${colorFor(c.symbol)}, #1b1d21)">$${esc(c.symbol)}</div>`;
+  const tile = `<div class="${cls}" style="background:linear-gradient(135deg, ${colorFor(c.symbol)}, #07060c)">$${esc(c.symbol)}</div>`;
   if (!c.logo || !/^https?:\/\//i.test(c.logo)) return tile;
   return `<div class="${cls} has-img"><img src="${esc(c.logo)}" alt="" loading="lazy" onerror="this.parentNode.outerHTML=this.dataset.fallback" data-fallback="${esc(tile)}" /></div>`;
 }
