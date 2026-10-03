@@ -8,8 +8,8 @@ export const CONFIG = {
   explorer: "https://robinhoodchain.blockscout.com",
   ponsFactory: "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
   seaport: "0x0000000000000068F116a894984e2DB1123eB395",
-  launcher: "", // Vaul Launcher, from admin.html step 1
-  startBlock: 0, // block the Vaul Registry was deployed in, from admin.html step 1
+  launcher: "0xc3fcb48dfcc3716cdc57312646046cd01dfaa477", // Vaul Launcher (Registry 0x73235cfd5c8ea0a8177ec3f61467c6452613f586)
+  startBlock: 78887766, // block the Vaul Registry was deployed in
   snapshotBaseUrl: "snapshots/", // where the keeper's SNAPSHOT_DIR is served
   externalLauncher: "", // Vaul external launcher (Ethereum / Base / Hyperliquid / Solana), from admin.html step 3
   // Chains a coin can collect NFTs on. Ids for non-Robinhood chains follow Relay's chain ids.
