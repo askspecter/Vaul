@@ -320,12 +320,22 @@ const bulkLog = (text, href) => {
   $("#bulkLog").append(li);
 };
 
+/** Collections already listed, from the Registry's CollectionSet events (one RPC call; asking
+ *  isCollection() per collection is ~440 calls and trips the public RPC's rate limit). */
+async function listedKeys(reg) {
+  const fromBlock = BigInt(saved().block || CONFIG.startBlock || 0);
+  const logs = await client.getContractEvents({ address: reg, abi: ABI.registry, eventName: "CollectionSet", fromBlock, toBlock: "latest" });
+  const state = new Map();
+  for (const { args } of logs) state.set(getAddress(args.collection), args.listed);
+  return new Set([...state].filter(([, listed]) => listed).map(([k]) => k));
+}
+
 async function pendingKeys() {
   const reg = await client.readContract({ address: myLauncher(), abi: ABI.launcher, functionName: "registry" });
   const meta = await collectionMeta();
   const keys = [...new Set(meta.map((c) => collectionKey(c.chainId, c.address)))];
-  const listed = await Promise.all(keys.map((k) => client.readContract({ address: reg, abi: ABI.registry, functionName: "isCollection", args: [k] })));
-  return { reg, total: keys.length, todo: keys.filter((_, i) => !listed[i]) };
+  const listed = await listedKeys(reg);
+  return { reg, total: keys.length, todo: keys.filter((k) => !listed.has(k)) };
 }
 
 async function refreshBulk() {
@@ -400,4 +410,7 @@ $("#bulkGiveBack").addEventListener("click", async () => {
   }
 });
 
-refreshBulk().catch(() => ($("#bulkInfo").textContent = "Could not read the Registry."));
+refreshBulk().catch((err) => {
+  console.error(err);
+  $("#bulkInfo").textContent = `Could not read the Registry (${err.shortMessage || err.message}). Reload the page to try again.`;
+});
