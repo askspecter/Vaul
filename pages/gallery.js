@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbi } from "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm";
 import {
-  $, esc, eth, live, renderChrome, loadLaunches, chainIcon, chainName, chainBadge, collectionLogo, client,
+  $, esc, eth, live, renderChrome, loadLaunches, chainIcon, chainName, chainBadge, collectionLogo, client, hd,
   CONFIG, ROBINHOOD, base58Encode, toHex,
 } from "../lib.js";
 import { loadActivity } from "../feed.js";
@@ -50,7 +50,7 @@ function draw() {
     const tag = href ? `a href="${href}" target="_blank" rel="noopener"` : "div";
     const id = String(n.tokenId).length > 10 ? `${String(n.tokenId).slice(0, 5)}…` : String(n.tokenId);
     return `<${tag} class="nft">
-      <div class="nft-img" data-key="${n.key}">${n.image ? `<img src="${esc(n.image)}" alt="" loading="lazy" />` : collectionLogo(n.collectionName, n.collectionImage, 72)}</div>
+      <div class="nft-img" data-key="${n.key}">${n.image ? `<img src="${esc(hd(n.image, 800))}" alt="" loading="lazy" />` : collectionLogo(n.collectionName, n.collectionImage, 72)}</div>
       <div class="nft-body">
         <b>${esc(n.collectionName)} #${esc(id)}</b>
         <span class="muted">${chainIcon(n.chainId)} ${eth(n.price, 4)} ETH · fed by <span class="mono">$${esc(n.symbol)}</span></span>
@@ -100,7 +100,7 @@ async function render() {
     for (let n = queue.shift(); n; n = queue.shift()) {
       n.image = await nftImage(n.chainId, n.address, n.tokenId);
       const slot = document.querySelector(`.nft-img[data-key="${n.key}"]`);
-      if (n.image && slot) slot.innerHTML = `<img src="${esc(n.image)}" alt="" loading="lazy" />`;
+      if (n.image && slot) slot.innerHTML = `<img src="${esc(hd(n.image, 800))}" alt="" loading="lazy" />`;
     }
   };
   await Promise.all([worker(), worker(), worker(), worker()]);

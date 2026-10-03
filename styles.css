@@ -197,7 +197,7 @@ h1, h2, h3, h4, .page-title, .sub { font-family: var(--display); font-weight: 70
   overflow-x: clip;
 }
 .hero > :not(.stage) { grid-column: 1; }
-.hero > .stage { grid-column: 2; grid-row: 1 / span 5; }
+.hero > .stage { grid-column: 2; grid-row: 1 / span 4; }
 .hero .pill { justify-self: start; }
 h1 { font-size: clamp(40px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.05em; margin: 22px 0 20px; text-wrap: balance; }
 .lead { font-size: clamp(16px, 1.6vw, 18px); color: var(--muted); max-width: 540px; margin: 0; line-height: 1.6; }
@@ -212,57 +212,68 @@ h1 { font-size: clamp(40px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.
 .stats b { font-family: var(--display); font-size: 28px; letter-spacing: -0.04em; }
 .stats span { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 
-/* hero stage: the top three floors fanned out flat, ribbon behind them */
-.stage { position: relative; height: 460px; }
+/* hero stage: the top-floor collection of every chain, fanned out flat */
+.stage { position: relative; aspect-ratio: 10 / 6.6; width: 100%; }
 .stage::before {
-  content: ""; position: absolute; inset: -10% -20% -10% -10%; z-index: 0; pointer-events: none;
-  background: url("assets/brand/vaul-512.png") center / contain no-repeat;
-  opacity: .22; filter: blur(1px);
-  -webkit-mask-image: radial-gradient(closest-side, #000 40%, transparent);
-  mask-image: radial-gradient(closest-side, #000 40%, transparent);
+  content: ""; position: absolute; inset: 5% 0 15%; z-index: 0; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(91, 59, 245, 0.35), transparent);
 }
 .card3d {
-  position: absolute; width: 220px; aspect-ratio: 4 / 5; padding: 0; border-radius: var(--radius); overflow: hidden;
+  position: absolute; top: 14%; width: 26%; aspect-ratio: 4 / 5; border-radius: var(--radius); overflow: hidden;
   background: var(--surface-2); border: 1px solid var(--line-2); z-index: 1;
-  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.9);
-  transition: transform .3s;
+  box-shadow: 0 30px 60px -18px rgba(0, 0, 0, 0.95);
+  transition: transform .35s cubic-bezier(.2, .8, .2, 1);
 }
 .card3d img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.c-left { left: 2%; top: 70px; transform: rotate(-9deg); filter: saturate(.85) brightness(.8); }
-.c-right { right: 2%; top: 90px; transform: rotate(8deg); filter: saturate(.85) brightness(.8); }
-.c-mid { left: calc(50% - 125px); top: 20px; width: 250px; z-index: 2; border-color: transparent; box-shadow: var(--glow), 0 40px 80px -20px rgba(0, 0, 0, 0.95); }
-.stage:hover .c-left { transform: rotate(-12deg) translateX(-10px); }
-.stage:hover .c-right { transform: rotate(11deg) translateX(10px); }
+.c-l2 { left: 0; top: 24%; transform: rotate(-10deg); z-index: 1; }
+.c-l1 { left: 14.5%; top: 14%; transform: rotate(-5deg); z-index: 2; }
+.c-r1 { right: 14.5%; top: 14%; transform: rotate(5deg); z-index: 2; }
+.c-r2 { right: 0; top: 24%; transform: rotate(10deg); z-index: 1; }
+.c-mid { left: 33%; top: 2%; width: 34%; z-index: 3; border-color: transparent; box-shadow: var(--glow), 0 40px 80px -20px rgba(0, 0, 0, 0.95); }
+.c-l2 img, .c-l1 img, .c-r1 img, .c-r2 img { filter: brightness(.82); }
+.stage:hover .c-l2 { transform: rotate(-13deg) translateX(-8px); }
+.stage:hover .c-l1 { transform: rotate(-7deg) translateX(-4px); }
+.stage:hover .c-r1 { transform: rotate(7deg) translateX(4px); }
+.stage:hover .c-r2 { transform: rotate(13deg) translateX(8px); }
 .holo {
   position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; padding: 1.5px; background: var(--ribbon);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
 }
 .c-label {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  padding: 26px 14px 12px; font-size: 12.5px; font-weight: 600; color: var(--ink);
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; flex-direction: column; gap: 2px;
+  padding: 28px 10px 9px; font-size: 11px; font-weight: 600; color: var(--ink);
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.92));
 }
-.c-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.c-label b { flex: none; font-family: var(--mono); font-weight: 500; color: var(--lavender); }
-.stage-floor { display: none; }
+.c-name { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.c-name > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.c-name .chain-icon { width: 14px; height: 14px; }
+.c-label b { font-family: var(--mono); font-weight: 500; color: var(--lavender); white-space: nowrap; }
+/* side cards are partly covered: chain + floor only, on the visible edge */
+.card3d:not(.c-mid) .c-label { flex-direction: row; align-items: center; gap: 4px; font-size: 10px; padding: 22px 8px 8px; }
+.card3d:not(.c-mid) .c-name > span { display: none; }
+.c-r1 .c-label, .c-r2 .c-label { justify-content: flex-end; }
+.c-mid .c-label { gap: 3px; padding: 34px 14px 12px; font-size: 14px; }
+.c-mid .c-label b { font-size: 13px; }
+.c-mid .c-name .chain-icon { width: 16px; height: 16px; }
 .stage .tag {
-  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 4; white-space: nowrap;
-  display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--ink-2);
-  padding: 9px 14px; border-radius: var(--radius-sm); background: rgba(11, 10, 18, 0.9);
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); z-index: 4; white-space: nowrap;
+  display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--ink-2);
+  padding: 9px 14px; border-radius: var(--radius-sm); background: rgba(11, 10, 18, 0.92);
   border: 1px solid var(--line-2); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
 .stage .tag b { color: var(--ink); }
 
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }
-  .hero > .stage { grid-column: 1; grid-row: auto; margin-top: 36px; }
+  .hero > .stage { grid-column: 1; grid-row: auto; margin-top: 40px; max-width: 560px; justify-self: center; }
   .stats { max-width: none; }
 }
 @media (max-width: 520px) {
-  .stage { height: 380px; }
-  .card3d { width: 150px; }
-  .c-mid { width: 190px; left: calc(50% - 95px); }
-  .c-left { left: -4%; top: 60px; } .c-right { right: -4%; top: 76px; }
+  .stage { aspect-ratio: 10 / 7.4; }
+  .card3d:not(.c-mid) .c-label { font-size: 8.5px; padding: 18px 5px 6px; }
+  .card3d:not(.c-mid) .c-name .chain-icon { width: 11px; height: 11px; }
+  .c-mid .c-label { font-size: 11.5px; padding: 26px 10px 9px; }
+  .c-mid .c-label b { font-size: 11px; }
   .stage .tag { font-size: 11px; padding: 8px 10px; }
   .stats div { padding: 12px; }
   .stats b { font-size: 21px; }
@@ -344,9 +355,14 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); margin: 0 0 24px; }
 .p-img { position: relative; aspect-ratio: 1; background: var(--surface-2); border-bottom: 1px solid var(--line); }
 .p-img > img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .p-rank {
-  position: absolute; left: 0; top: 12px; font-family: var(--mono); font-weight: 500; font-size: 12px;
-  padding: 4px 10px 4px 12px; color: #0a0716; background: var(--ribbon); border-radius: 0 4px 4px 0;
+  position: absolute; left: 10px; bottom: 10px; font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1;
+  letter-spacing: -0.04em; color: #fff; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.8);
 }
+.p-img::after {
+  content: ""; position: absolute; inset: auto 0 0; height: 45%; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.6));
+}
+.p-rank { z-index: 1; }
 .p-img .pill-chain { position: absolute; right: 10px; top: 10px; background: rgba(0, 0, 0, 0.75); border-color: var(--line-2); padding: 3px 8px; }
 .p-img .pill-chain .chain-icon { width: 14px; height: 14px; }
 .p-body { padding: 14px 16px 16px; }

@@ -26,12 +26,18 @@ export function chainIcon(id) {
   return c?.icon ? `<img class="chain-icon" src="${c.icon}" alt="" width="16" height="16" />` : "";
 }
 
+/** Sharper OpenSea CDN images: i2c.seadn.io serves 500px by default and resizes on `?w=`. */
+export function hd(url, w = 1000) {
+  if (!url || !/^https:\/\/i2c\.seadn\.io\//.test(url) || url.includes("?")) return url || "";
+  return `${url}?w=${w}`;
+}
+
 /** Collection logo (from collections.json), or a coloured initial when there is none. */
 export function collectionLogo(name, image, size = 44) {
   const style = `width:${size}px;height:${size}px`;
   const initial = `<span class="col-logo col-logo-fallback" style="${style};background:${colorFor(name || "?")}">${esc((name || "?").slice(0, 1))}</span>`;
   if (!image) return initial;
-  return `<img class="col-logo" style="${style}" src="${esc(image)}" alt="" loading="lazy" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${esc(initial)}" />`;
+  return `<img class="col-logo" style="${style}" src="${esc(hd(image, Math.max(128, size * 3)))}" alt="" loading="lazy" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${esc(initial)}" />`;
 }
 
 /** Logo + name pill, e.g. for coin cards and collection rows. */
@@ -566,16 +572,31 @@ export async function loadExternalLaunch(n) {
   };
 }
 
+/** Ids of the coins launched through Vaul, newest first. Kept in the site's own KV store
+ *  (api/launches.js), so coins made elsewhere on the shared launcher contracts never show up. */
+export async function vaulLaunchIds() {
+  const res = await fetch("/api/launches", { cache: "no-store" });
+  if (!res.ok) throw new Error("Could not load the coin list");
+  return (await res.json()).ids || [];
+}
+
+/** Records a launch transaction in Vaul's coin list. */
+export async function recordLaunch(hash) {
+  const res = await fetch("/api/launches", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hash }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || "Could not record the launch");
+  return json.id;
+}
+
 export async function loadLaunches(limit = 60) {
-  const count = await launchCount();
-  const ids = [...Array(Math.min(count, limit)).keys()].map((i) => count - 1 - i);
-  let ext = [];
-  if (externalLive) {
-    const n = Number(await read(CONFIG.externalLauncher, ABI.extLauncher, "launchCount"));
-    ext = [...Array(Math.min(n, limit)).keys()].map((i) => `e${n - 1 - i}`);
-  }
+  if (!live) return [];
   const hidden = new Set((CONFIG.hiddenLaunches || []).map(String));
-  return Promise.all([...ids, ...ext].filter((id) => !hidden.has(String(id))).map(loadLaunch));
+  const ids = (await vaulLaunchIds())
+    .filter((id) => !hidden.has(String(id)) && (externalLive || !String(id).startsWith("e")))
+    .slice(0, limit);
+  return Promise.all(ids.map(loadLaunch));
 }
 
 /** Explorer link for a transaction on an EVM chain. Solana signatures (64 bytes) do not fit the

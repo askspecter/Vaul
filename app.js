@@ -1,5 +1,5 @@
 import {
-  live, $, esc, toast, renderChrome, loadLaunches, coinCard, formatEther, collectionMeta, collectionKey, chainBadge, CONFIG,
+  live, $, esc, toast, renderChrome, loadLaunches, coinCard, formatEther, collectionMeta, collectionKey, chainBadge, chainIcon, hd, CONFIG,
 } from "./lib.js";
 
 const RULES = [
@@ -82,17 +82,25 @@ async function loadFloors() {
   return res.json();
 }
 
-/** 3D stage in the hero: the three most valuable collections by floor. */
-function renderStage(top, total, chains) {
+/** Hero stage: the collection with the highest floor (in USD) on each chain, fanned out. */
+function renderStage(items, total) {
+  const best = new Map();
+  for (const c of items) if (!best.has(c.chainId) || c.floorUsd > best.get(c.chainId).floorUsd) best.set(c.chainId, c);
+  const top = [...best.values()].sort((x, y) => y.floorUsd - x.floorUsd).slice(0, 5);
   if (top.length < 3) return;
-  const [first, second, third] = top;
-  $("#stage").innerHTML = `
-    <div class="card3d c-left"><img src="${esc(second.image)}" alt="" /></div>
-    <div class="card3d c-right"><img src="${esc(third.image)}" alt="" /></div>
-    <div class="card3d c-mid"><span class="holo"></span><img src="${esc(first.image)}" alt="" />
-      <span class="c-label"><span class="c-name">${esc(first.name)}</span><b>${fmt(first.floor)} ${esc(first.symbol)}</b></span></div>
-    <div class="stage-floor"></div>
-    <div class="tag"><span class="dot"></span>Collecting from <b>${total} collections</b> on ${chains} chains</div>`;
+  // Highest in the middle, then alternating left/right outwards.
+  const slots = ["mid", "l1", "r1", "l2", "r2"];
+  const card = (c, slot) => `
+    <div class="card3d c-${slot}">
+      ${slot === "mid" ? '<span class="holo"></span>' : ""}
+      <img src="${esc(hd(c.image, slot === "mid" ? 1000 : 600))}" alt="${esc(c.name)}" />
+      <span class="c-label">
+        <span class="c-name">${chainIcon(c.chainId)}<span>${esc(c.name)}</span></span>
+        <b>${fmt(c.floor, c.floor < 1 ? 3 : 2)} ${esc(c.symbol)}</b>
+      </span>
+    </div>`;
+  $("#stage").innerHTML = top.map((c, i) => card(c, slots[i])).join("") + `
+    <div class="tag"><span class="dot"></span>Top floor on each chain · <b>${total} collections</b> to collect</div>`;
 }
 
 /** Horizontally scrollable profiles of the collections with the highest floors. */
@@ -102,7 +110,7 @@ function renderRail(items) {
     try { key = collectionKey(c.chainId, c.address); } catch { /* unknown chain */ }
     const os = CONFIG.chains[c.chainId]?.opensea;
     return `<article class="profile">
-      <div class="p-img"><img src="${esc(c.image || "")}" alt="" loading="lazy" /><span class="p-rank">#${i + 1}</span>${chainBadge(c.chainId)}</div>
+      <div class="p-img"><img src="${esc(hd(c.image, 800))}" alt="" loading="lazy" /><span class="p-rank">${String(i + 1).padStart(2, "0")}</span>${chainBadge(c.chainId)}</div>
       <div class="p-body">
         <h3>${esc(c.name)}</h3>
         <div class="p-floor"><b>${fmt(c.floor, c.floor < 1 ? 3 : 2)} ${esc(c.symbol)}</b>${c.floorUsd ? `<span>≈ ${usdFmt(c.floorUsd)}</span>` : ""}</div>
@@ -123,8 +131,7 @@ function renderRail(items) {
 async function renderFloors() {
   const [data, meta] = await Promise.all([loadFloors(), collectionMeta()]);
   const items = data.items.filter((c) => c.image && c.floorUsd);
-  const chains = new Set(meta.map((m) => m.chainId)).size;
-  renderStage(items.slice(0, 3), meta.length, chains);
+  renderStage(items, meta.length);
   renderRail(items.slice(0, 20));
   const when = new Date(data.updatedAt);
   $("#floorsNote").textContent = `The most valuable collections a coin can collect. Floors from OpenSea, updated ${when.toLocaleDateString(undefined, { day: "numeric", month: "short" })} ${when.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}.`;

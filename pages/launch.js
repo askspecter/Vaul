@@ -1,7 +1,7 @@
 import {
   friendlyError, getAddress,
   CONFIG, ABI, client, $, esc, live, toast, renderChrome, walletClient, getAccount, connect,
-  listedCollectionsDetailed, loadLaunches, colorFor, eth, toHex, short, chainName, ROBINHOOD,
+  listedCollectionsDetailed, loadLaunches, recordLaunch, colorFor, eth, toHex, short, chainName, ROBINHOOD,
   externalLive, collectionId, chainIcon, chainBadge, chainIdByName, collectionLogo, museId, saveVideo,
 } from "../lib.js";
 import { parseAbi, zeroAddress, encodeFunctionData } from "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm";
@@ -334,8 +334,12 @@ $("#launchBtn").addEventListener("click", async (e) => {
         ? "Out of gas: your wallet capped the gas limit at 1.2M. Raise it to 4,000,000 in the wallet, or use MetaMask."
         : "Launch transaction failed");
     }
-    const count = await client.readContract({ address: target, abi, functionName: "launchCount" });
-    const launchId = `${external ? "e" : ""}${Number(count) - 1}`;
+    // Add the coin to Vaul's list; the API reads the id from the tx's Launched event, so a retry is safe.
+    let launchId = await recordLaunch(hash).catch(() => recordLaunch(hash)).catch((err) => { console.error(err); return null; });
+    if (!launchId) {
+      const count = await client.readContract({ address: target, abi, functionName: "launchCount" });
+      launchId = `${external ? "e" : ""}${Number(count) - 1}`;
+    }
     toast("Launched!");
     const video = museId(val("video"));
     let next = `coin?id=${launchId}`;
