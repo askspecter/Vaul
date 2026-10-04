@@ -411,7 +411,7 @@ export function renderChrome(active) {
     const q = active === "collections" ? new URLSearchParams(location.search).get("q") || "" : "";
     header.innerHTML = `
       <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">${ICONS.menu}</button>
-      <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="" width="32" height="32" /><span>Vaul</span></a>
+      <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="" width="32" height="32" /><span>vaul</span></a>
       <nav class="nav-links" id="navLinks">
         <form class="nav-search" action="collections" role="search">
           <input name="q" type="search" placeholder="Search collections" aria-label="Search collections" value="${esc(q)}" />
@@ -441,7 +441,7 @@ export function renderChrome(active) {
     footer.className = "footer";
     footer.innerHTML = `
       <div>
-        <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="" width="32" height="32" /><span>Vaul</span></a>
+        <a href="/" class="brand" aria-label="Vaul home"><img src="assets/brand/vaul-logo.png" alt="" width="32" height="32" /><span>vaul</span></a>
         <p>Pons coins on Robinhood Chain whose creator fees buy NFT floors. Vault rules are enforced on-chain.</p>
       </div>
       <div class="foot-links">${NAV.map(([h, l]) => `<a href="${h}">${l}</a>`).join("")}</div>
