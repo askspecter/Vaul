@@ -3,9 +3,23 @@
 // Run by .github/workflows/floors.yml.
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 
-const KEY = process.env.OPENSEA_API_KEY;
-if (!KEY) throw new Error("OPENSEA_API_KEY missing");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Use OPENSEA_API_KEY when set; otherwise mint a free-tier key (POST /auth/keys, valid 7 days),
+// the same fallback the keeper uses, so the workflow runs without any secret.
+async function apiKey() {
+  if (process.env.OPENSEA_API_KEY) return process.env.OPENSEA_API_KEY;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await fetch("https://api.opensea.io/api/v2/auth/keys", { method: "POST", headers: { accept: "application/json" } });
+    if (res.status === 429) { await sleep((Number(res.headers.get("retry-after")) || 2 ** attempt * 5) * 1000); continue; }
+    if (!res.ok) throw new Error(`OpenSea key mint ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    const k = await res.json();
+    console.log(`OpenSea free-tier key minted, expires ${k.expires_at}`);
+    return k.api_key;
+  }
+  throw new Error("OpenSea key mint kept rate limiting");
+}
+const KEY = await apiKey();
 
 async function os(path) {
   for (let attempt = 0; attempt < 8; attempt++) {
