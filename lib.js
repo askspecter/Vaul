@@ -122,6 +122,7 @@ export const ABI = {
     "function totalSupply() view returns (uint256)",
     "function logo() view returns (string)",
     "function description() view returns (string)",
+    "function balanceOf(address) view returns (uint256)",
   ]),
   erc721: parseAbi([
     "function name() view returns (string)",
@@ -445,6 +446,7 @@ export function renderChrome(active) {
         <p>Pons coins on Robinhood Chain whose creator fees buy NFT floors. Vault rules are enforced on-chain.</p>
       </div>
       <div class="foot-links">${NAV.map(([h, l]) => `<a href="${h}">${l}</a>`).join("")}</div>
+      ${CONFIG.officialToken ? `<p class="foot-token">Official token <b>$${esc(CONFIG.officialToken.symbol)}</b> <span class="mono">${esc(CONFIG.officialToken.address)}</span></p>` : ""}
       <small>© ${new Date().getFullYear()} Vaul. Not affiliated with Robinhood Markets or Pons. Not financial advice.</small>`;
   }
   if (!live) {

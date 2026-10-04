@@ -1,6 +1,8 @@
 import {
   live, $, esc, toast, renderChrome, loadLaunches, coinCard, formatEther, collectionMeta, chainIcon, hd,
+  client, ABI, CONFIG,
 } from "./lib.js";
+import { geckoPool, geckoPage, geckoEmbed, ponsPage } from "./feed.js";
 
 let coins = [];
 let currentSort = "new";
@@ -85,3 +87,41 @@ async function renderFloors() {
 renderFloors().catch((err) => console.error(err));
 if (location.hash === "#launch") location.replace("launch");
 refresh().catch((e) => toast("Could not load launches: " + (e.shortMessage || e.message)));
+
+/** Vaul's own token (CONFIG.officialToken): contract, live burn, Pons link and chart. */
+async function renderOfficial() {
+  const t = CONFIG.officialToken;
+  if (!t?.address) return;
+  const addr = t.address;
+  $("#official").hidden = false;
+  $("#otCa").textContent = addr;
+  $("#otBuy").href = ponsPage(addr);
+  $("#otExplorer").href = `${CONFIG.explorer}/token/${addr}`;
+  $("#otCopy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(addr); toast("Copied"); } catch { toast(addr); }
+  });
+  const read = (fn, args) => client.readContract({ address: addr, abi: ABI.erc20, functionName: fn, args });
+  const [supply, burned, logo] = await Promise.all([
+    read("totalSupply").catch(() => null),
+    read("balanceOf", ["0x000000000000000000000000000000000000dEaD"]).catch(() => null),
+    read("logo").catch(() => ""),
+  ]);
+  const n = (wei) => Number(formatEther(wei));
+  if (supply) $("#otSupply").textContent = n(supply).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  if (supply && burned !== null) {
+    const pct = (n(burned) / n(supply)) * 100;
+    $("#otBurn").innerHTML = `${n(burned).toLocaleString(undefined, { maximumFractionDigits: 0 })} <small>${pct.toFixed(2)}%</small>`;
+  }
+  const img = String(logo || "").replace(/^ipfs:\/\/(ipfs\/)?/, "https://ipfs.io/ipfs/");
+  if (/^https:\/\//.test(img)) {
+    const el = $("#otLogo");
+    el.onerror = () => { el.onerror = null; el.src = "assets/brand/vaul-512.png"; };
+    el.src = img;
+  }
+  const pool = await geckoPool(addr, "");
+  if (pool) {
+    $("#otChart").href = geckoPage(pool); $("#otChart").hidden = false;
+    $("#otChartFrame").src = geckoEmbed(pool); $("#otChartWrap").hidden = false;
+  }
+}
+renderOfficial().catch((e) => console.error(e));

@@ -20,6 +20,8 @@ export const CONFIG = {
     999: { name: "Hyperliquid", evm: true, currency: "HYPE", explorer: "https://hyperevmscan.io", rpc: "https://rpc.hyperliquid.xyz/evm", opensea: "hyperevm", icon: "assets/chains/hyperliquid.jpg" },
     792703809: { name: "Solana", evm: false, currency: "SOL", explorer: "https://solscan.io", icon: "assets/chains/solana.jpg" },
   },
+  // Vaul's own token, launched on Pons (shown on the home page and in the footer).
+  officialToken: { address: "0x927b50e4ce03671d5a505922750edcc9cb734ad4", symbol: "VAUL" },
   collectionsUrl: "collections.json", // names + marketplace slugs for listed collections
   hiddenLaunches: [], // launch ids kept off the site's lists (the contracts still run them)
   x: "UseVaul", // X / Twitter handle shown in the menu

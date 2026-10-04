@@ -861,3 +861,37 @@ a.nft:hover { border-color: var(--accent); }
   .vd-node { padding: 4px 6px; } .vd-node b { font-size: 10.5px; } .vd-node span { font-size: 9px; }
   .vd-ch { padding-top: 44px; }
 }
+
+/* ---------------------------------------------------------------- official token (home) */
+.official { padding-top: 8px; }
+.ot { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) auto; gap: 24px 32px; align-items: center;
+  padding: 22px 24px; border-radius: var(--radius); background: linear-gradient(120deg, rgba(123, 92, 255, 0.14), rgba(123, 92, 255, 0.03) 60%), var(--surface);
+  border: 1px solid rgba(169, 155, 255, 0.35); box-shadow: 0 0 60px -30px rgba(123, 92, 255, 0.8); }
+.ot-id { display: flex; gap: 18px; align-items: center; min-width: 0; }
+.ot-id > div { min-width: 0; }
+.ot-logo { width: 72px; height: 72px; border-radius: 16px; object-fit: cover; flex: none; background: #000; box-shadow: 0 0 0 1px var(--line-2), 0 0 30px -6px rgba(123, 92, 255, 0.7); }
+.ot-kick { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--lavender); }
+.ot-name { margin: 4px 0 8px; font-size: 32px; letter-spacing: -0.03em; }
+.ot-ca { margin: 0; max-width: 100%; }
+.ot-stats { display: grid; grid-template-columns: 1.25fr 1.1fr .9fr; gap: 16px; margin: 0; }
+.ot-stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ot-stats dd { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+.ot-stats dd small { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--lavender); margin-left: 4px; }
+.ot-actions { display: flex; flex-direction: column; gap: 8px; }
+.ot-actions .btn { white-space: nowrap; }
+.ot-chartwrap { margin-top: 12px; }
+.ot-chartwrap iframe { height: 380px; }
+.foot-token { grid-column: 1 / -1; font-size: 13px !important; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+.foot-token b { color: var(--ink); }
+.foot-token .mono { font-size: 12px; }
+@media (max-width: 1000px) {
+  .ot { grid-template-columns: 1fr; }
+  .ot-actions { flex-direction: row; flex-wrap: wrap; }
+}
+@media (max-width: 520px) {
+  .ot { padding: 18px; }
+  .ot-logo { width: 56px; height: 56px; }
+  .ot-name { font-size: 26px; }
+  .ot-stats dd { font-size: 15px; }
+  .ot-chartwrap iframe { height: 300px; }
+}
