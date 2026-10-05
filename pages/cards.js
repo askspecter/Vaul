@@ -1,6 +1,6 @@
 import {
   $, esc, live, toast, renderChrome, collectionMeta, collectionKey, listedCollections, loadLaunches, coinCard, eth,
-  externalLive, chainIcon, chainName,
+  externalLive, chainIcon, chainName, loadGrails,
 } from "../lib.js";
 
 renderChrome("cards");
@@ -8,7 +8,9 @@ renderChrome("cards");
 const launchHref = (c) => `launch?collection=${encodeURIComponent(c.key)}`;
 
 async function render() {
-  const cats = (await collectionMeta())
+  const meta = await collectionMeta();
+  const grails = meta.filter((c) => c.kind === "grail").map((c) => ({ ...c, key: collectionKey(c.chainId, c.address, c.tag) }));
+  const cats = meta
     .filter((c) => c.kind === "cards")
     .map((c) => ({ ...c, key: collectionKey(c.chainId, c.address, c.tag) }))
     // Collector Crypt first: it is where most graded Pokémon and One Piece cards trade.
@@ -50,11 +52,40 @@ async function render() {
     </article>`;
   }).join("");
 
-  const keys = new Set(cats.map((c) => c.key.toLowerCase()));
+  renderGrails(grails, isOpen, launches);
+
+  const keys = new Set([...cats, ...grails].map((c) => c.key.toLowerCase()));
   const mine = launches.filter((l) => keys.has(l.collection.toLowerCase()));
   $("#cvCoins").innerHTML = mine.length
     ? mine.map(coinCard).join("")
     : `<p class="empty">No card coins yet. The first one starts the first vault.</p>`;
+}
+
+/** Grail Mode tiles: each grail's spec and the live price of the cheapest card that meets it. */
+async function renderGrails(grails, isOpen, launches) {
+  const { byTag } = await loadGrails();
+  const usd = (n) => `$${Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  $("#gmGrid").innerHTML = grails.map((g) => {
+    const live = byTag.get(g.tag);
+    const coins = launches.filter((l) => l.collection.toLowerCase() === g.key.toLowerCase()).length;
+    const img = live?.image || g.image;
+    return `<article class="gm-card">
+      <div class="gm-art"><img src="${esc(img)}" alt="" loading="lazy" onerror="this.src='${esc(g.image)}'" /></div>
+      <div class="gm-body">
+        <span class="gm-tag">${chainIcon(g.chainId)} GRAIL · ${esc(g.source)}</span>
+        <h3>${esc(g.name)}</h3>
+        <p>${esc(g.spec || "")}</p>
+        <div class="gm-price">${live?.priceUsd != null
+          ? `<span>Cheapest listed now</span><b>${usd(live.priceUsd)}</b><small>≈ ${live.priceEth.toFixed(3)} ETH</small>`
+          : `<span>Not listed right now</span><b>—</b><small>The vault waits for one</small>`}</div>
+        ${live?.card ? `<p class="gm-card-name" title="${esc(live.card)}">${esc(live.card)}</p>` : ""}
+        ${isOpen(g)
+          ? `<a class="btn btn-dark wide" href="launch?collection=${encodeURIComponent(g.key)}">Launch a grail coin</a>`
+          : `<span class="btn btn-ghost wide is-off">Opening soon</span>`}
+        ${coins ? `<small class="gm-coins">${coins} coin${coins === 1 ? "" : "s"} saving for it</small>` : ""}
+      </div>
+    </article>`;
+  }).join("") || `<p class="empty">No grails yet.</p>`;
 }
 
 render().catch((e) => {

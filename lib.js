@@ -582,11 +582,19 @@ export async function loadExternalLaunch(n) {
   const m = meta.get(getAddress(collection));
   return {
     id: `e${n}`, chainId: Number(chainId), external: true, isEvm, token, curve, router, vault, collection, creator,
-    name, symbol, logo, description, collectionName: m?.name || `${chainName(chainId)} collection`, collectionAddress: m?.address, collectionImage: m?.image || null, kind: m?.kind || null, source: m?.source || null,
+    name, symbol, logo, description, collectionName: m?.name || `${chainName(chainId)} collection`, collectionAddress: m?.address, collectionImage: m?.image || null, kind: m?.kind || null, source: m?.source || null, tag: m?.tag || null, spec: m?.spec || null,
     vaultBalance, pending, policy: POLICIES[policy], nfts: buys.length,
     withdrawn, spent, pendingAmount, pendingReadyAt: Number(pendingReadyAt),
     purchases: buys.map((b) => ({ tokenId: b.args.tokenId, price: b.args.price, externalTx: b.args.externalTx })),
   };
+}
+
+/** Grail Mode: live price of every grail (the cheapest card meeting its spec), keyed by tag. */
+let grailsPromise;
+export function loadGrails() {
+  grailsPromise ||= fetch("/api/grails").then((r) => (r.ok ? r.json() : { grails: [] })).catch(() => ({ grails: [] }))
+    .then((d) => ({ ethUsd: d.ethUsd || null, byTag: new Map((d.grails || []).map((g) => [g.tag, g])) }));
+  return grailsPromise;
 }
 
 /** Ids of the coins launched through Vaul, newest first. Kept in the site's own KV store
@@ -662,7 +670,7 @@ export async function listedCollectionsDetailed() {
   const [keys, meta] = await Promise.all([listedCollections(), metaByKey()]);
   return Promise.all(keys.map(async (key) => {
     const m = meta.get(key);
-    if (m) return { key, chainId: Number(m.chainId), address: m.address, tag: m.tag, kind: m.kind, source: m.source, market: m.market, name: m.name, slug: m.slug, image: m.image };
+    if (m) return { key, chainId: Number(m.chainId), address: m.address, tag: m.tag, kind: m.kind, source: m.source, market: m.market, spec: m.spec, name: m.name, slug: m.slug, image: m.image };
     // Unknown key: a Robinhood collection not in collections.json yet (other-chain keys need metadata).
     const name = await read(key, ABI.erc721, "name").catch(() => null);
     return name ? { key, chainId: ROBINHOOD, address: key, name } : null;

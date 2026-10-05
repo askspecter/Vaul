@@ -87,6 +87,23 @@ Cara keeper membeli kartu:
 - Pemenang raffle kartu Collector Crypt mengisi alamat Solana di halaman **Giveaways**. Pemenang kartu Courtyard menerima di alamat wallet yang sama di Polygon. Kartu fisiknya bisa ditebus di situs Collector Crypt atau Courtyard.
 - Opsi **Burn** tidak tersedia untuk kartu.
 
+## Grail Mode (vault menabung untuk satu kartu incaran)
+
+Koin Grail Mode tidak membeli kartu termurah terus-menerus. Vault-nya menabung sampai cukup untuk **satu grail**, lalu membeli kartu termurah di Collector Crypt yang memenuhi spesifikasi grail itu, dan kartu itu di-raffle ke satu holder. Spesifikasinya ada di `collections.json` (`kind: "grail"`):
+
+| Grail | Spesifikasi | Registry key |
+| --- | --- | --- |
+| Charizard PSA 10 | Charizard apa saja, PSA 10, harga ≥ $1.000 | `0xfd0B2b59E4b75e2F9C292C0cdA6c37a7e7C59b1d` |
+| Luffy Manga Art | Monkey D. Luffy Manga Art, grade 10 | `0x140b9E015c0051a692A41FC6f3a80D61F85C72e2` |
+| Shanks OP01-120 PSA 10 | Shanks OP01-120 Romance Dawn, PSA 10 | `0xd3D07F20cB93B4973446cFE33c52c245E3514988` |
+| Umbreon 10 | Umbreon apa saja, grade 10, harga ≥ $1.000 | `0x1D95DFceedA6510C8Db434227256471c3375C52B` |
+
+Supaya bisa di-launch, tiap key di atas perlu didaftarkan sekali dengan akun Owner: `setCollection(key, true)` di Registry `0x73235cfd5c8ea0a8177ec3f61467c6452613f586`.
+
+- Harga grail dibaca langsung dari Collector Crypt lewat `/api/grails` dan diperbarui tiap beberapa menit. Halaman koin menampilkan progresnya, misalnya "64% to grail".
+- `ceilingEth` per grail (3 / 1 / 4 / 3 ETH) menggantikan `MAX_CEILING_ETH` khusus grail itu, karena grail bisa lebih mahal dari batas biasa. Penarikan dana tetap diumumkan 1 jam sebelumnya dan bisa dibatalkan Owner.
+- Kalau tidak ada kartu yang memenuhi spesifikasi sedang dijual, vault tetap menabung dan menunggu.
+
 ## Keamanan
 - Private key **Owner** tidak pernah ditaruh di mana pun. Owner hanya dipakai lewat wallet HP.
 - Akun **Keeper** hanya berisi ETH untuk gas. Kalau key-nya bocor, panggil `setKeeper(address)` di Registry dengan akun Owner, lalu update secret `KEEPER_PRIVATE_KEY`.

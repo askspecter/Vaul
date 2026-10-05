@@ -16,7 +16,10 @@
 //     whose name or traits contain one of the words, paying in POL or USDC;
 //   - `market: "collectorcrypt"` and a `category` (Collector Crypt on Solana, via its own API):
 //     the keeper buys the cheapest graded card of that category, paying in USDC.
-import { createPublicClient, createWalletClient, http, defineChain, parseAbi, getAddress, keccak256, toHex, formatEther } from "viem";
+// Grail Mode entries (`kind: "grail"`, Collector Crypt) add a spec (`search`, `must`, `graders`,
+// `grade`, `minUsd`): the vault buys nothing until it can afford the cheapest card that meets
+// it, so it saves up for one grail. `ceilingEth` raises MAX_CEILING_ETH for that grail.
+import { createPublicClient, createWalletClient, http, defineChain, parseAbi, getAddress, keccak256, toHex, formatEther, parseEther } from "viem";
 import * as relay from "./relay.js";
 import { log, warn } from "./log.js";
 
@@ -204,7 +207,7 @@ export class ExternalKeeper {
   async collectorCryptFloor(l, meta) {
     const t = TARGETS[l.chainId];
     if (!this.cc) return warn(`#${l.id} Collector Crypt client missing`), null;
-    const [listing] = await this.cc.cheapest(meta.category, { want: 1 });
+    const [listing] = await this.cc.cheapest(meta, { want: 1 });
     if (!listing) return warn(`#${l.id} no ${meta.name} listed on Collector Crypt`), null;
     listing.tokenId = BigInt(this.solana.toBytes32(listing.mint));
     const usdc = t.tokens.USDC;
@@ -271,7 +274,7 @@ export class ExternalKeeper {
     const r = (fn) => this.client.readContract({ address: l.vault, abi: extVaultAbi, functionName: fn });
     const [pendingBefore, readyAt] = await Promise.all([r("pendingAmount"), r("pendingReadyAt")]);
     const now = (await this.client.getBlock()).timestamp;
-    const card = meta.kind === "cards";
+    const card = meta.kind === "cards" || meta.kind === "grail";
     let floor;
 
     // 3. Execute a ready withdrawal and bridge it straight away. Card Vaults price first so the
@@ -309,7 +312,8 @@ export class ExternalKeeper {
     // 2. Announce a withdrawal when the vault can pay for the floor.
     if (pending === 0n && balance >= floor.ethCost - inFlight) {
       const amount = floor.ethCost - inFlight;
-      if (floor.ethCost > this.cfg.maxCeiling) return warn(`#${l.id} floor ${formatEther(floor.ethCost)} ETH above MAX_CEILING_ETH`);
+      const ceiling = meta.ceilingEth ? parseEther(String(meta.ceilingEth)) : this.cfg.maxCeiling;
+      if (floor.ethCost > ceiling) return warn(`#${l.id} floor ${formatEther(floor.ethCost)} ETH above the ${meta.ceilingEth ? "grail's ceilingEth" : "MAX_CEILING_ETH"}`);
       await this.send(`#${l.id} announceWithdrawal ${formatEther(amount)} ETH for ${meta.name}`, {
         address: l.vault, abi: extVaultAbi, functionName: "announceWithdrawal", args: [amount],
       });

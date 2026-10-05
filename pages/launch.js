@@ -140,6 +140,8 @@ function renderSummary() {
   const s = split();
   $("#facts").innerHTML = [
     `80% of everything your coin earns goes to the ${state.collection ? esc(state.collection.name) : "collection"} vault and 20% to the treasury. This split is fixed in the fee router's code, and nobody can change it.`,
+    state.collection?.kind === "grail"
+      ? `Grail Mode: the vault buys nothing until it can afford its grail (${esc(state.collection.spec || state.collection.name)}). Then it buys the cheapest card that meets it on ${esc(state.collection.source || "the marketplace")}, and that one card is raffled to holders. Winners enter a Solana address on the Giveaways page and can redeem the physical card.` :
     state.collection?.kind === "cards"
       ? `Each card the vault buys is the cheapest graded ${esc(state.collection.name.replace(/ Cards$/, ""))} card listed on ${esc(state.collection.source || "the marketplace")} at the time, a real card held in its vault and represented by an NFT on ${esc(state.collection.chain)}. ${CONFIG.chains[state.collection.chainId]?.evm
         ? "Winners receive it at the same wallet address there" : "Winners enter a Solana address on the Giveaways page to receive it"} and can redeem the physical card.` : "",
@@ -157,7 +159,7 @@ function renderSummary() {
 /** Card Vaults buy real cards, so "Burn" is not offered for them. */
 function syncPolicyOptions() {
   const burn = document.querySelector('input[name="policy"][value="2"]');
-  const cards = state.collection?.kind === "cards";
+  const cards = state.collection?.kind === "cards" || state.collection?.kind === "grail";
   burn.disabled = cards;
   burn.closest(".option").hidden = cards;
   if (cards && burn.checked) document.querySelector('input[name="policy"][value="0"]').checked = true;

@@ -1,7 +1,7 @@
 import {
   CONFIG, ABI, client, $, esc, live, toast, renderChrome, loadLaunch, loadRaffles, write,
   eth, short, addrLink, chainName, chainBadge, ROBINHOOD, collectionLogo, coinArt,
-  getAccount, onAccount, connect, museId, museEmbed, musePage, loadVideo, saveVideo,
+  getAccount, onAccount, connect, museId, museEmbed, musePage, loadVideo, saveVideo, loadGrails,
 } from "../lib.js";
 import {
   loadActivity, addTimes, mountFeed, summarize, wireCopy, copyBtn, geckoPool, geckoEmbed, geckoPage, ponsPage,
@@ -29,6 +29,27 @@ function addressRow(label, addr, href) {
   return `<div class="addr-row"><span>${label}</span><a class="mono" href="${link}" target="_blank" rel="noopener">${short(addr)}</a>${copyBtn(addr, "⧉")}</div>`;
 }
 
+/** Grail Mode: how far the vault is towards its grail (vault balance plus ETH already bridged). */
+function grailProgress(l, grails) {
+  const g = grails?.byTag.get(l.tag);
+  const saved = Number(l.vaultBalance + (l.withdrawn - l.spent)) / 1e18;
+  if (l.nfts > 0) return `<div class="grail-progress"><img src="${esc(l.collectionImage || "")}" alt="" /><div>
+    <span class="gp-k">GRAIL MODE</span><h3>Grail secured</h3><p>The vault bought its grail${l.policy === "Raffle" ? "; it goes to one holder in the giveaway below" : ""}.</p></div></div>`;
+  const pctDone = g?.priceEth ? Math.min(100, (saved / g.priceEth) * 100) : 0;
+  return `<div class="grail-progress">
+    <img src="${esc(g?.image || l.collectionImage || "")}" alt="" onerror="this.style.visibility='hidden'" />
+    <div>
+      <span class="gp-k">GRAIL MODE · SAVING FOR</span>
+      <h3>${esc(l.collectionName)}</h3>
+      <div class="gp-pct">${g?.priceEth ? `${pctDone.toFixed(pctDone < 10 ? 1 : 0)}%` : "—"}</div>
+      <div class="gp-bar"><i style="width:${pctDone}%"></i></div>
+      <p>${g?.priceEth
+        ? `${saved.toFixed(4)} ETH saved of ≈ ${g.priceEth.toFixed(3)} ETH (cheapest listed: $${Math.round(g.priceUsd).toLocaleString()}${g.card ? `, ${esc(g.card)}` : ""}). The vault buys nothing else until then.`
+        : `${saved.toFixed(4)} ETH saved. No card meeting the grail is listed right now; the vault keeps saving.`}</p>
+    </div>
+  </div>`;
+}
+
 async function render() {
   if (!live) return ($("#coin").innerHTML = `<p class="empty">Contracts not deployed yet.</p>`);
   if (id == null) return ($("#coin").innerHTML = `<p class="empty">No coin selected. <a href="explore">Explore coins</a>.</p>`);
@@ -36,13 +57,14 @@ async function render() {
   const l = await loadLaunch(id);
   document.title = `$${l.symbol} · Vaul`;
   const registry = await client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" });
-  const [treasury, supply, raffles, activity, pool, video] = await Promise.all([
+  const [treasury, supply, raffles, activity, pool, video, grails] = await Promise.all([
     client.readContract({ address: registry, abi: ABI.registry, functionName: "treasury" }).catch(() => null),
     client.readContract({ address: l.token, abi: ABI.erc20, functionName: "totalSupply" }).catch(() => 0n),
     l.policy === "Raffle" ? loadRaffles(l).catch(() => []) : [],
     loadActivity([l]).catch(() => []),
     geckoPool(l.token, l.curve),
     loadVideo(l.id),
+    l.kind === "grail" ? loadGrails() : null,
   ]);
   const s = summarize(activity);
   const drawsDone = raffles.filter((r) => r.claimed).length;
@@ -84,6 +106,7 @@ async function render() {
           <iframe id="chart" title="$${esc(l.symbol)} price chart" src="${geckoEmbed(pool)}" loading="lazy" allow="clipboard-write" allowfullscreen></iframe>
         </div>
 
+        ${l.kind === "grail" ? grailProgress(l, grails) : ""}
         <div class="kpis">
           <div class="kpi"><span>In the vault now</span><b>${eth(l.vaultBalance, 4)} ETH</b></div>
           <div class="kpi"><span>NFTs bought</span><b>${s.bought}</b></div>

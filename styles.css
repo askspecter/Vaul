@@ -991,3 +991,44 @@ a.nft:hover { border-color: var(--accent); }
 }
 .cv-src { display: flex; gap: 8px; align-items: flex-start; }
 .cv-src b { color: var(--ink-2); font-weight: 600; }
+
+/* Grail Mode (cards.html + coin page) */
+.gm { margin-top: 72px; padding: clamp(22px, 3vw, 36px); border: 1px solid var(--line-2); border-radius: 18px;
+  background: radial-gradient(60% 80% at 85% 0%, rgba(91, 59, 245, .22), transparent 60%), var(--surface); }
+.gm-head { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: end; margin-bottom: 26px; }
+.gm-title { margin: 14px 0 10px; font-size: clamp(30px, 4vw, 46px); }
+.gm-title em { font-style: normal; background: var(--ribbon); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gm .lead-left { margin-bottom: 0; }
+.gm-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.gm-steps li { display: flex; gap: 12px; align-items: baseline; font-size: 14px; color: var(--ink-2); }
+.gm-steps b { font: 500 12px var(--mono); color: var(--lavender); }
+.gm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.gm-card { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); overflow: hidden; transition: border-color .2s, transform .2s; }
+.gm-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.gm-art { position: relative; aspect-ratio: 4 / 5; background: radial-gradient(closest-side, rgba(123, 92, 255, .35), transparent), var(--surface-2); }
+.gm-art img { position: absolute; inset: 16px; width: calc(100% - 32px); height: calc(100% - 32px); object-fit: contain; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .7)); }
+.gm-body { padding: 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.gm-tag { display: inline-flex; align-items: center; gap: 6px; font: 500 11px var(--mono); letter-spacing: .14em; color: var(--lavender); }
+.gm-body h3 { margin: 2px 0 0; font-size: 19px; }
+.gm-body p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.gm-price { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 8px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.gm-price span { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.gm-price b { font: 700 24px var(--display); letter-spacing: -0.02em; }
+.gm-price small { color: var(--lavender); font: 500 12px var(--mono); }
+.gm-card-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px !important; }
+.gm-body .btn.wide { margin-top: auto; }
+.gm-coins { color: var(--muted); font-size: 12px; text-align: center; }
+.gm .hint { margin: 16px 0 0; }
+@media (max-width: 1000px) { .gm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .gm-head { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .gm { padding: 18px 14px; } .gm-grid { grid-template-columns: 1fr; gap: 10px; } .gm-card { flex-direction: row; } .gm-art { flex: 0 0 120px; aspect-ratio: auto; } .gm-art img { inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px); } .gm-body { padding: 14px; } .gm-tag { letter-spacing: .08em; font-size: 10px; } .gm-price b { font-size: 21px; } }
+
+.grail-progress { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; align-items: center; margin: 16px 0;
+  padding: 18px; border: 1px solid var(--line-2); border-radius: 14px; background: radial-gradient(70% 120% at 0% 50%, rgba(91, 59, 245, .2), transparent 60%), var(--surface); }
+.grail-progress img { width: 120px; aspect-ratio: 5 / 7; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 14px 24px rgba(0, 0, 0, .7)); }
+.grail-progress .gp-k { font: 500 11px var(--mono); letter-spacing: .16em; color: var(--lavender); }
+.grail-progress h3 { margin: 6px 0 2px; font-size: 22px; }
+.grail-progress .gp-pct { font: 700 40px var(--display); letter-spacing: -0.03em; }
+.grail-progress .gp-bar { height: 10px; border-radius: 99px; background: var(--surface-3); overflow: hidden; margin: 10px 0 8px; }
+.grail-progress .gp-bar i { display: block; height: 100%; border-radius: 99px; background: var(--ribbon); box-shadow: 0 0 18px rgba(123, 92, 255, .7); }
+.grail-progress p { margin: 0; color: var(--muted); font-size: 13px; }
+@media (max-width: 520px) { .grail-progress { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; } .grail-progress img { width: 84px; } .grail-progress .gp-pct { font-size: 30px; } }

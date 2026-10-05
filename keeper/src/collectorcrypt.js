@@ -35,20 +35,23 @@ export class CollectorCrypt {
   }
 
   /**
-   * Cheapest graded cards in `category` (e.g. "Pokemon", "One Piece") that the keeper can buy:
-   * listed on Collector Crypt's own marketplace, in USDC, as MPL Core assets (the standard the
-   * keeper can also deliver to raffle winners). Lowest price first.
+   * Cheapest graded cards the keeper can buy that match `spec`: listed on Collector Crypt's own
+   * marketplace, in USDC, as MPL Core assets (the standard the keeper can also deliver to raffle
+   * winners). `spec` is a category name ("Pokemon", "One Piece") or a grail spec (see
+   * matchesSpec); a spec's `search` narrows the API query. Lowest price first.
    */
-  async cheapest(category, { want = 3, pages = 5, step = 1000 } = {}) {
-    const wanted = category.toLowerCase();
+  async cheapest(spec, { want = 3, pages = 5, step = 1000 } = {}) {
+    if (typeof spec === "string") spec = { category: spec };
     const out = [];
     let cursor = null;
     for (let page = 0; page < pages && out.length < want; page++) {
       const q = new URLSearchParams({ step: String(step), orderBy: "listedPriceAsc", marketplaceSource: "CC" });
+      if (spec.search) q.set("search", spec.search);
+      if (spec.minUsd) q.set("listPriceMin", String(spec.minUsd));
       if (cursor) q.set("cursor", cursor);
       const data = await this.#req(`/marketplace?${q}`);
       for (const c of data.filterNFtCard || []) {
-        if (isBuyable(c, wanted)) out.push(toListing(c));
+        if (isBuyable(c, spec.category.toLowerCase()) && matchesSpec(c, spec)) out.push(toListing(c));
         if (out.length >= want) break;
       }
       cursor = data.nextCursor;
@@ -88,6 +91,25 @@ export function isBuyable(card, category) {
     && !!card.gradingCompany
     && card.nftStandard === "core"
     && l && l.marketplace === "CC" && l.currency === "USDC" && Number(l.price) > 0;
+}
+
+/**
+ * Grail Mode: does a card meet the grail spec? Every `must` word appears in its name, it is
+ * graded by one of `graders` (any when omitted) at exactly `grade` (when given), and it is
+ * listed at `minUsd` or more, so a "PSA 10 Charizard" grail never settles for a $40 promo.
+ */
+export function matchesSpec(card, spec) {
+  const name = String(card.itemName || "").toLowerCase();
+  if ((spec.must || []).some((w) => !name.includes(w.toLowerCase()))) return false;
+  const grader = String(card.gradingCompany || "").toLowerCase();
+  if (spec.graders?.length && !spec.graders.some((g) => g.toLowerCase() === grader)) return false;
+  if (spec.grade != null) {
+    const g = String(spec.grade);
+    const named = new RegExp(`\\b(psa|cgc|bgs|beckett|sgc)\\s*${g}\\b`, "i").test(card.itemName || "");
+    const field = Number(card.gradeNum) === Number(g) || new RegExp(`(^|\\s)${g}$`).test(String(card.grade || "").trim());
+    if (!named && !field) return false;
+  }
+  return !(spec.minUsd && Number(card.listing?.price) < spec.minUsd);
 }
 
 export function toListing(card) {

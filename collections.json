@@ -3113,5 +3113,90 @@
   "category": "One Piece",
   "name": "One Piece Cards",
   "image": "assets/cards/onepiece.jpg"
+ },
+ {
+  "chainId": 792703809,
+  "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac",
+  "kind": "grail",
+  "market": "collectorcrypt",
+  "source": "Collector Crypt",
+  "tag": "g-charizard-psa10",
+  "name": "Charizard PSA 10",
+  "spec": "Any Charizard graded PSA 10, listed at $1,000 or more.",
+  "category": "Pokemon",
+  "search": "Charizard",
+  "must": [
+   "charizard"
+  ],
+  "graders": [
+   "PSA"
+  ],
+  "grade": 10,
+  "minUsd": 1000,
+  "ceilingEth": 3,
+  "image": "assets/cards/charizard.jpg"
+ },
+ {
+  "chainId": 792703809,
+  "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac",
+  "kind": "grail",
+  "market": "collectorcrypt",
+  "source": "Collector Crypt",
+  "tag": "g-luffy-manga-10",
+  "name": "Luffy Manga Art",
+  "spec": "Monkey D. Luffy Manga Art, graded 10.",
+  "category": "One Piece",
+  "search": "Manga Art",
+  "must": [
+   "manga art",
+   "luffy"
+  ],
+  "grade": 10,
+  "minUsd": 150,
+  "ceilingEth": 1,
+  "image": "assets/cards/shanks.jpg"
+ },
+ {
+  "chainId": 792703809,
+  "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac",
+  "kind": "grail",
+  "market": "collectorcrypt",
+  "source": "Collector Crypt",
+  "tag": "g-shanks-op01-psa10",
+  "name": "Shanks OP01-120 PSA 10",
+  "spec": "Shanks OP01-120 (Romance Dawn), graded PSA 10.",
+  "category": "One Piece",
+  "search": "Shanks",
+  "must": [
+   "shanks",
+   "#120",
+   "op01"
+  ],
+  "graders": [
+   "PSA"
+  ],
+  "grade": 10,
+  "minUsd": 1000,
+  "ceilingEth": 4,
+  "image": "assets/cards/shanks2.jpg"
+ },
+ {
+  "chainId": 792703809,
+  "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac",
+  "kind": "grail",
+  "market": "collectorcrypt",
+  "source": "Collector Crypt",
+  "tag": "g-umbreon-10",
+  "name": "Umbreon 10",
+  "spec": "Any Umbreon graded 10, listed at $1,000 or more.",
+  "category": "Pokemon",
+  "search": "Umbreon",
+  "must": [
+   "umbreon"
+  ],
+  "grade": 10,
+  "minUsd": 1000,
+  "ceilingEth": 3,
+  "image": "assets/cards/umbreon.jpg"
  }
 ]

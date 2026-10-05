@@ -3,7 +3,7 @@
   "trailingSlash": false,
   "functions": {
     "api/*.js": {
-      "includeFiles": "config.js"
+      "includeFiles": "{config.js,collections.json,keeper/package.json,keeper/src/collectorcrypt.js}"
     }
   }
 }

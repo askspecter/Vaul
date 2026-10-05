@@ -56,6 +56,17 @@ A Card Vault coin collects real graded trading cards of one category (Pokémon o
 - Prizes go out with a Metaplex Core transfer to the Solana address the winner saves on the Giveaways page. "Burn" is not offered for cards; a burn coin would keep them.
 - `COLLECTOR_CRYPT_API_KEY` (optional, `ccsk_…`, from support@collectorcrypt.com) raises the API's rate limits 10×. Reads and transaction builders work without it.
 
+**Grail Mode** (Collector Crypt): `kind: "grail"` entries add a spec, and the vault buys nothing until it can afford the cheapest card that meets it:
+
+```json
+{ "chainId": 792703809, "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac", "kind": "grail", "market": "collectorcrypt",
+  "tag": "g-charizard-psa10", "category": "Pokemon", "search": "Charizard", "must": ["charizard"], "graders": ["PSA"],
+  "grade": 10, "minUsd": 1000, "ceilingEth": 3, "name": "Charizard PSA 10" }
+```
+
+- `search` narrows the API query; every `must` word has to be in the card's name; `graders` and `grade` pin the slab; `minUsd` keeps a cheap stand-in from counting as the grail.
+- `ceilingEth` replaces `MAX_CEILING_ETH` for that grail. The site's `/api/grails` prices each grail with the same code (`src/collectorcrypt.js`).
+
 **Courtyard (Polygon)**, via OpenSea:
 
 ```json

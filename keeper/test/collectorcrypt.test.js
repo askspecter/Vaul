@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PublicKey, Keypair } from "@solana/web3.js";
 import { ExternalKeeper, tagHex } from "../src/external.js";
-import { isBuyable, toListing } from "../src/collectorcrypt.js";
+import { isBuyable, toListing, matchesSpec } from "../src/collectorcrypt.js";
 import { coreTransferInstruction, parseCoreAsset, MPL_CORE } from "../src/solana.js";
 
 const SOL = 792703809;
@@ -41,7 +41,7 @@ test("floor: cheapest card priced in USDC plus bridge, no gas top-up when SOL is
   const listing = toListing(card());
   const k = new ExternalKeeper({
     collections: [entry], solana: fakeSolana,
-    cc: { cheapest: async (cat) => (assert.equal(cat, "Pokemon"), [listing]) },
+    cc: { cheapest: async (spec) => (assert.equal(spec.category, "Pokemon"), [listing]) },
     bridge: { quote: async (_c, amount, _t, cur) => (assert.equal(cur, USDC), { amountIn: (amount * 10n ** 12n) / 2000n }) },
   });
   const f = await k.floor({ id: "e1", chainId: SOL }, entry);
@@ -79,4 +79,19 @@ test("parseCoreAsset reads owner and collection", () => {
   const data = Buffer.concat([Buffer.from([1]), owner.toBuffer(), Buffer.from([2]), coll.toBuffer(), Buffer.alloc(40)]);
   const a = parseCoreAsset(data);
   assert.ok(a.owner.equals(owner) && a.collection.equals(coll));
+});
+
+test("grail spec: the right card, the right grade, never a cheap stand-in", () => {
+  const zard = { category: "Pokemon", search: "Charizard", must: ["charizard"], graders: ["PSA"], grade: 10, minUsd: 1000 };
+  const c = (itemName, price, extra = {}) => card({ itemName, gradingCompany: "PSA", grade: null, gradeNum: null, listing: { price, currency: "USDC", marketplace: "CC" }, ...extra });
+  assert.ok(matchesSpec(c("2009 #002 Charizard G LV.X-Holo 1st Edition PSA 10 Japanese", 4390), zard));
+  assert.ok(!matchesSpec(c("2025 #013 Mega Charizard X EX PSA 10 Japanese", 42), zard), "below minUsd");
+  assert.ok(!matchesSpec(c("2002 #3 Charizard-Reverse Foil PSA 1 Legendary Collection", 5000), zard), "PSA 1 is not PSA 10");
+  assert.ok(!matchesSpec(c("1999 #4 Charizard-Holo PSA 9 Base Set", 3000), zard), "PSA 9");
+  assert.ok(!matchesSpec(c("1998 Charizard CGC 10 Pristine CD Promo", 4800, { gradingCompany: "CGC" }), zard), "wrong grader");
+  assert.ok(!matchesSpec(c("2019 Blastoise PSA 10", 2000), zard), "not a Charizard");
+  assert.ok(matchesSpec(c("Charizard ex Special Art", 1500, { gradeNum: 10 }), zard), "grade from gradeNum");
+  const manga = { category: "One Piece", must: ["manga art", "luffy"], grade: 10 };
+  assert.ok(matchesSpec(c("2022 #P-001 Manga Art Monkey D. Luffy CGC 10 PRISTINE Promo", 250, { gradingCompany: "CGC" }), manga));
+  assert.ok(!matchesSpec(c("2022 #ST01-002 Manga Art Usopp CGC 10 PRISTINE", 32, { gradingCompany: "CGC" }), manga));
 });
