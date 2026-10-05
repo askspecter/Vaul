@@ -97,23 +97,25 @@ const SETUP = new URLSearchParams(location.search).has("setup");
 let setup = null; // { registry, owner }
 async function initSetup() {
   if (!SETUP || !live) return;
-  const registry = await client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" });
-  const owner = await client.readContract({ address: registry, abi: ABI.registry, functionName: "owner" });
-  setup = { registry, owner };
+  // Show the panel straight away; the owner and the listed flags fill in when the chain answers.
+  setup = { registry: CONFIG.registry || await client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" }), owner: null };
   $("#cvSetup").hidden = false;
   drawSetup();
   $("#cvSetup").scrollIntoView({ behavior: "smooth", block: "start" });
+  client.readContract({ address: setup.registry, abi: ABI.registry, functionName: "owner" })
+    .then((o) => { setup.owner = o; drawSetup(); }).catch(() => {});
   $("#cvSetupRows").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-list]");
     if (!b) return;
     b.disabled = true;
     try {
       const wallet = await walletClient();
+      const owner = setup.owner || await client.readContract({ address: setup.registry, abi: ABI.registry, functionName: "owner" });
       if (wallet.account.address.toLowerCase() !== owner.toLowerCase()) throw new Error(`Connect the Registry owner wallet (${short(owner)}).`);
       b.textContent = "Confirm in your wallet…";
-      await write({ address: registry, abi: ABI.registry, functionName: "setCollection", args: [b.dataset.list, true] });
+      await write({ address: setup.registry, abi: ABI.registry, functionName: "setCollection", args: [b.dataset.list, true] });
       toast("Listed");
-      state.open?.add(b.dataset.list.toLowerCase());
+      (state.open ||= new Set()).add(b.dataset.list.toLowerCase());
       draw();
     } catch (err) {
       console.error(err);
@@ -130,8 +132,8 @@ function drawSetup() {
   $("#cvSetupRows").innerHTML = rows.map(([c, kind]) => `
     <div class="cv-setup-row">
       <span><b>${esc(c.name)}</b> <small class="muted">· ${kind} · ${esc(c.source || "")}</small><small class="mono">key ${short(c.key)}</small></span>
-      ${state.open === null ? `<span class="muted small">Checking…</span>` : isOpen(c) ? `<span class="pill">Listed ✓</span>` : `<button class="btn btn-dark btn-sm" data-list="${c.key}">List it</button>`}
-    </div>`).join("") + `<p class="hint">Registry owner: <span class="mono">${short(setup.owner)}</span></p>`;
+      ${isOpen(c) ? `<span class="pill">Listed ✓</span>` : `<button class="btn btn-dark btn-sm" data-list="${c.key}">List it</button>`}
+    </div>`).join("") + `<p class="hint">Registry owner: <span class="mono">${setup.owner ? short(setup.owner) : "…"}</span>${state.open === null ? " · checking which are listed…" : ""}</p>`;
 }
 
 async function render() {
@@ -150,10 +152,13 @@ async function render() {
     return draw();
   }
   const all = [...state.cats, ...state.grails];
-  isListed(all.map((c) => c.key))
-    .then((flags) => { state.open = new Set(all.filter((_, i) => flags[i]).map((c) => c.key.toLowerCase())); })
-    .catch(() => { state.open = new Set(); })
-    .finally(draw);
+  // The listing check goes first and the coin list after it, so they don't compete for the RPC.
+  for (let attempt = 0; attempt < 4 && state.open === null; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt)); // public RPC: back off and retry
+    const flags = await isListed(all.map((c) => c.key)).catch(() => null);
+    if (flags) state.open = new Set(all.filter((_, i) => flags[i]).map((c) => c.key.toLowerCase()));
+  }
+  draw();
   loadLaunches(500).catch(() => []).then((l) => { state.launches = l; draw(); });
 }
 

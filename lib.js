@@ -670,7 +670,7 @@ export async function listedCollections() {
 /** Whether each Registry key is listed, read directly (a handful of calls, no log scan). */
 let registryAddr;
 export async function isListed(keys) {
-  registryAddr ||= read(CONFIG.launcher, ABI.launcher, "registry");
+  registryAddr ||= CONFIG.registry ? Promise.resolve(CONFIG.registry) : read(CONFIG.launcher, ABI.launcher, "registry");
   const registry = await registryAddr;
   return Promise.all(keys.map((k) => read(registry, ABI.registry, "isCollection", [k])));
 }

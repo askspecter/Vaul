@@ -9,6 +9,7 @@ export const CONFIG = {
   ponsFactory: "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
   seaport: "0x0000000000000068F116a894984e2DB1123eB395",
   launcher: "0xc3fcb48dfcc3716cdc57312646046cd01dfaa477", // Vaul Launcher (Registry 0x73235cfd5c8ea0a8177ec3f61467c6452613f586)
+  registry: "0x73235cfd5c8ea0a8177ec3f61467c6452613f586", // Vaul Registry (also readable from the launcher)
   startBlock: 78887766, // block the Vaul Registry was deployed in
   snapshotBaseUrl: "snapshots/", // where the keeper's SNAPSHOT_DIR is served
   externalLauncher: "0xfc33e6b4200038984d3f6d5333b690d064294550", // Vaul external launcher (Ethereum / Base / Hyperliquid / Polygon / Solana)
