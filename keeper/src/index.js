@@ -34,8 +34,10 @@ async function makeExternal() {
   const hooks = process.env.KEEPER_TEST_HOOKS
     ? (await import(new URL(process.env.KEEPER_TEST_HOOKS, `file://${process.cwd()}/`))).default({ account })
     : {};
+  const { CollectorCrypt } = await import("./collectorcrypt.js");
+  const cc = new CollectorCrypt({ apiKey: cfg.collectorCryptApiKey, log });
   return new ExternalKeeper({
-    cfg, client, wallet, account, send, opensea, collections, solana, ...hooks,
+    cfg, client, wallet, account, send, opensea, collections, solana, cc, ...hooks,
     receipts: (l, tokenId, sig) => appendReceipt({ vault: l.vault, chainId: l.chainId, tokenId: tokenId.toString(), signature: sig }),
   });
 }

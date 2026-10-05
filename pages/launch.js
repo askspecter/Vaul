@@ -141,7 +141,8 @@ function renderSummary() {
   $("#facts").innerHTML = [
     `80% of everything your coin earns goes to the ${state.collection ? esc(state.collection.name) : "collection"} vault and 20% to the treasury. This split is fixed in the fee router's code, and nobody can change it.`,
     state.collection?.kind === "cards"
-      ? `Each card the vault buys is the cheapest graded ${esc(state.collection.name.replace(/ Cards$/, ""))} card listed at the time, a real card held by ${esc(state.collection.source || "its custodian")} and represented by an NFT on ${esc(state.collection.chain)}. Winners receive it at the same wallet address there and can redeem the physical card.` : "",
+      ? `Each card the vault buys is the cheapest graded ${esc(state.collection.name.replace(/ Cards$/, ""))} card listed on ${esc(state.collection.source || "the marketplace")} at the time, a real card held in its vault and represented by an NFT on ${esc(state.collection.chain)}. ${CONFIG.chains[state.collection.chainId]?.evm
+        ? "Winners receive it at the same wallet address there" : "Winners enter a Solana address on the Giveaways page to receive it"} and can redeem the physical card.` : "",
     state.collection && state.collection.chainId !== ROBINHOOD
       ? `This collection is on ${esc(state.collection.chain)}. The keeper moves the vault's ETH there to buy: every withdrawal is announced 1 hour ahead and can be cancelled, and each purchase is recorded on Robinhood Chain.`
       : "The collection and the NFT rule are permanent. The vault has no withdraw function.",
@@ -153,7 +154,17 @@ function renderSummary() {
   $("#launchBtn").textContent = getAccount() ? `Launch $${val("symbol").toUpperCase() || "coin"}` : "Connect wallet";
 }
 
+/** Card Vaults buy real cards, so "Burn" is not offered for them. */
+function syncPolicyOptions() {
+  const burn = document.querySelector('input[name="policy"][value="2"]');
+  const cards = state.collection?.kind === "cards";
+  burn.disabled = cards;
+  burn.closest(".option").hidden = cards;
+  if (cards && burn.checked) document.querySelector('input[name="policy"][value="0"]').checked = true;
+}
+
 function render() {
+  syncPolicyOptions();
   document.querySelectorAll("[data-panel]").forEach((p) => (p.hidden = Number(p.dataset.panel) !== state.step));
   document.querySelectorAll("#stepper li").forEach((li) => {
     const i = Number(li.dataset.step);
@@ -274,6 +285,7 @@ $("#colList").addEventListener("click", (e) => {
   const b = e.target.closest("[data-key]");
   if (!b) return;
   state.collection = state.collections.find((c) => c.key === b.dataset.key);
+  syncPolicyOptions();
   renderCollections();
   renderPreview();
 });

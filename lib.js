@@ -483,16 +483,17 @@ export function collectionMeta() {
  *  category gets its own Registry key while the keeper still reads the address from the low
  *  20 bytes. */
 export function collectionId(chainId, address, tag) {
-  if (!CONFIG.chains[Number(chainId)]?.evm) return toHex(base58Decode(address), { size: 32 });
+  // Solana Card Vaults (Collector Crypt) buy across a whole marketplace: the id is the tag alone.
+  if (!CONFIG.chains[Number(chainId)]?.evm) return tag ? `0x${tagHex(tag, 32)}` : toHex(base58Decode(address), { size: 32 });
   const id = pad(getAddress(address), { size: 32 });
   return tag ? `0x${tagHex(tag)}${id.slice(-40)}` : id;
 }
 
-/** A category tag as 12 bytes of hex (ASCII, zero-padded on the right). */
-export function tagHex(tag) {
-  if (!/^[\x21-\x7e]{1,12}$/.test(tag)) throw new Error("tag must be 1–12 ASCII characters");
+/** A category tag as `bytes` bytes of hex (ASCII, zero-padded on the right). */
+export function tagHex(tag, bytes = 12) {
+  if (!/^[\x21-\x7e]+$/.test(tag) || tag.length > bytes) throw new Error(`tag must be 1–${bytes} ASCII characters`);
   const hex = [...tag].map((ch) => ch.charCodeAt(0).toString(16).padStart(2, "0")).join("");
-  return hex.padEnd(24, "0");
+  return hex.padEnd(bytes * 2, "0");
 }
 
 /** Registry key: the address itself on Robinhood Chain, a hash of (chain, id) elsewhere. */
@@ -663,7 +664,7 @@ export async function listedCollectionsDetailed() {
   const [keys, meta] = await Promise.all([listedCollections(), metaByKey()]);
   return Promise.all(keys.map(async (key) => {
     const m = meta.get(key);
-    if (m) return { key, chainId: Number(m.chainId), address: m.address, tag: m.tag, kind: m.kind, source: m.source, name: m.name, slug: m.slug, image: m.image };
+    if (m) return { key, chainId: Number(m.chainId), address: m.address, tag: m.tag, kind: m.kind, source: m.source, market: m.market, name: m.name, slug: m.slug, image: m.image };
     // Unknown key: a Robinhood collection not in collections.json yet (other-chain keys need metadata).
     const name = await read(key, ABI.erc721, "name").catch(() => null);
     return name ? { key, chainId: ROBINHOOD, address: key, name } : null;

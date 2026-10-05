@@ -64,21 +64,28 @@ Keeper tidak akan berjalan sebelum `LAUNCHER` diisi. Setelah diisi: tab **Action
 
 ## Card Vaults (koin yang mengumpulkan kartu asli)
 
-Card Vaults memakai ExternalLauncher yang sudah ada, jadi **tidak perlu deploy kontrak baru**. Kartunya adalah kartu graded asli yang disimpan oleh Courtyard dan dijadikan NFT di Polygon. Kategorinya:
+Card Vaults memakai ExternalLauncher yang sudah ada, jadi **tidak perlu deploy kontrak baru**. Kartunya adalah kartu graded asli (PSA/CGC/BGS) yang disimpan di vault, dalam bentuk NFT. Ada dua sumber:
 
-| Kategori | Registry key |
-| --- | --- |
-| Pokémon Cards | `0x4A427aD3bFa8AB3602744ed397c90Aa1c03f2508` |
-| One Piece Cards | `0x4CFFE73c164c2059F6055074BdE8021Ab6B84bff` |
+| Kategori | Sumber | Chain | Registry key |
+| --- | --- | --- | --- |
+| Pokémon Cards | **Collector Crypt** | Solana | `0xbbd35e1566c79795901E942c62C2c76E7c83babb` |
+| One Piece Cards | **Collector Crypt** | Solana | `0x322CdFF4A70f64a58C4222c762c13D7e9aC5a5E3` |
+| Pokémon Cards | Courtyard | Polygon | `0x4A427aD3bFa8AB3602744ed397c90Aa1c03f2508` |
+| One Piece Cards | Courtyard | Polygon | `0x4CFFE73c164c2059F6055074BdE8021Ab6B84bff` |
 
-**Sekali saja, dari HP:** buka `vaul.app/cards?setup`, sambungkan wallet **Owner**, lalu tekan **List it** untuk tiap kategori (2 transaksi kecil). Setelah itu tombol launch di halaman Cards langsung aktif.
+**Sekali saja, dari HP:** buka `vaul.app/cards?setup`, sambungkan wallet **Owner**, lalu tekan **List it** untuk kategori yang mau dibuka (1 transaksi kecil per kategori). Setelah itu tombol launch di halaman Cards langsung aktif.
+
+**Untuk Collector Crypt (Solana) keeper butuh wallet Solana:**
+1. Buat akun Solana baru khusus keeper (misalnya di Phantom → Add account), lalu ekspor private key-nya.
+2. GitHub → Settings → Secrets and variables → Actions → **New repository secret**: `KEEPER_SOLANA_KEY` = private key itu. Wallet ini tidak perlu diisi: keeper sendiri yang mengirim USDC dan sedikit SOL dari vault.
+3. Opsional: `COLLECTOR_CRYPT_API_KEY` (diawali `ccsk_`). Minta lewat email ke support@collectorcrypt.com. Tanpa key pun API-nya jalan, key hanya menaikkan batas request 10×.
 
 Cara keeper membeli kartu:
-- membaca 50 listing termurah Courtyard di OpenSea, lalu memilih yang namanya atau traits-nya cocok dengan kategori (kartu basket dan lainnya dilewati);
-- ETH vault diumumkan 1 jam sebelum ditarik (bisa dibatalkan Owner), lalu di-bridge ke Polygon dalam bentuk USDC atau POL, sesuai mata uang listing kartunya;
-- pemenang raffle menerima NFT kartu di Polygon, di alamat wallet yang sama. Kartu fisiknya bisa ditebus lewat courtyard.io.
-
-Tidak ada secret baru. `POLYGON_RPC` (variable, opsional) bisa diisi kalau RPC publik bawaan sedang lambat.
+- **Collector Crypt:** lewat API resmi Collector Crypt, keeper memilih kartu graded termurah di kategori itu (saat ini Pokémon mulai ±$12, One Piece mulai ±$20), membayar dengan USDC di Solana, lalu memastikan kartunya masuk ke wallet keeper.
+- **Courtyard:** lewat OpenSea, keeper mengecek nama dan traits tiap listing agar kartu kategori lain tidak terbeli.
+- ETH vault selalu diumumkan 1 jam sebelum ditarik (bisa dibatalkan Owner), lalu di-bridge ke chain kartunya.
+- Pemenang raffle kartu Collector Crypt mengisi alamat Solana di halaman **Giveaways**. Pemenang kartu Courtyard menerima di alamat wallet yang sama di Polygon. Kartu fisiknya bisa ditebus di situs Collector Crypt atau Courtyard.
+- Opsi **Burn** tidak tersedia untuk kartu.
 
 ## Keamanan
 - Private key **Owner** tidak pernah ditaruh di mana pun. Owner hanya dipakai lewat wallet HP.

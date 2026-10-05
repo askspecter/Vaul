@@ -17,6 +17,7 @@ export function loadConfig() {
     collectionsFile: process.env.COLLECTIONS_FILE || "../collections.json",
     solanaKey: process.env.KEEPER_SOLANA_KEY || "",
     solanaRpc: process.env.SOLANA_RPC || "",
+    collectorCryptApiKey: process.env.COLLECTOR_CRYPT_API_KEY || "",
     startBlock: BigInt(process.env.START_BLOCK || 0),
     openseaApiKey: process.env.OPENSEA_API_KEY || "",
     sweepDisabled: process.env.SWEEP_DISABLED === "1",

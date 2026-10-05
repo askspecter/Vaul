@@ -4,7 +4,10 @@
 #   Settings → Secrets and variables → Actions
 #     Secrets:   KEEPER_PRIVATE_KEY  (dedicated keeper wallet, gas money only)
 #                OPENSEA_API_KEY     (optional; empty = auto free-tier key)
-#                KEEPER_SOLANA_KEY   (optional; base58 secret key, only for Solana collections)
+#                KEEPER_SOLANA_KEY   (optional; base58 secret key, for Solana collections and
+#                                     Collector Crypt Card Vaults)
+#                COLLECTOR_CRYPT_API_KEY (optional; ccsk_… key from support@collectorcrypt.com,
+#                                     raises Collector Crypt's rate limits 10×)
 #     Variables:  LAUNCHER, START_BLOCK, EXTERNAL_LAUNCHER — Vaul's own contracts (see config.js).
 #                 The keeper does not run until LAUNCHER is set.
 #   Optional variables: MAX_CEILING_ETH, CEILING_MARKUP_BPS, MIN_HARVEST_ETH
@@ -56,9 +59,12 @@ jobs:
           # Vaul's own deployment (repo variables, same as config.js).
           LAUNCHER: ${{ vars.LAUNCHER }}
           START_BLOCK: ${{ vars.START_BLOCK }}
-          # Ethereum / Base / Hyperliquid / Solana collections
+          # Ethereum / Base / Hyperliquid / Polygon / Solana collections and Card Vaults
           EXTERNAL_LAUNCHER: ${{ vars.EXTERNAL_LAUNCHER }}
           KEEPER_SOLANA_KEY: ${{ secrets.KEEPER_SOLANA_KEY }}
+          COLLECTOR_CRYPT_API_KEY: ${{ secrets.COLLECTOR_CRYPT_API_KEY }}
+          POLYGON_RPC: ${{ vars.POLYGON_RPC }}
+          SOLANA_RPC: ${{ vars.SOLANA_RPC }}
           COLLECTIONS_FILE: ../collections.json
           MAX_CEILING_ETH: ${{ vars.MAX_CEILING_ETH || '0.5' }}
           CEILING_MARKUP_BPS: ${{ vars.CEILING_MARKUP_BPS || '300' }}

@@ -10,10 +10,12 @@
 //   5. deliver raffle prizes the Raffles contract assigned (EVM: same address; Solana: the
 //      destination the winner saved) and mark them delivered.
 //
-// Card Vaults pair a coin with one category of a mixed collection (e.g. the Pokémon cards on
-// Courtyard). Their collections.json entry has a `tag` (stored in the vault's collection id, in
-// front of the address) and `match` words; the keeper buys the cheapest listing whose name or
-// traits contain one of the words, paying in the chain's coin or a listed token such as USDC.
+// Card Vaults pair a coin with one category of graded trading cards. Their collections.json
+// entry has `kind: "cards"` and a `tag` (stored in the vault's collection id) and one of:
+//   - `match` words (Courtyard on Polygon, via OpenSea): the keeper buys the cheapest listing
+//     whose name or traits contain one of the words, paying in POL or USDC;
+//   - `market: "collectorcrypt"` and a `category` (Collector Crypt on Solana, via its own API):
+//     the keeper buys the cheapest graded card of that category, paying in USDC.
 import { createPublicClient, createWalletClient, http, defineChain, parseAbi, getAddress, keccak256, toHex, formatEther } from "viem";
 import * as relay from "./relay.js";
 import { log, warn } from "./log.js";
@@ -57,9 +59,9 @@ const OPENSEA_CONDUIT = "0x1E0049783F008A0085193E00003D00cd54003c71"; // pulls E
 const MAX_CARD_CHECKS = 25; // NFT metadata lookups per vault per pass
 
 /** A Card Vault category tag as the 12 bytes in front of the address (see lib.js tagHex). */
-export function tagHex(tag) {
-  if (!tag) return "0".repeat(24);
-  return [...tag].map((ch) => ch.charCodeAt(0).toString(16).padStart(2, "0")).join("").padEnd(24, "0");
+export function tagHex(tag, bytes = 12) {
+  if (!tag) return "0".repeat(bytes * 2);
+  return [...tag].map((ch) => ch.charCodeAt(0).toString(16).padStart(2, "0")).join("").padEnd(bytes * 2, "0");
 }
 
 /** True when the NFT's name, description or traits contain one of the entry's `match` words. */
@@ -79,17 +81,18 @@ export const TARGETS = {
     listingCurrencies: ["POL", "MATIC", "USDC"], tokens: { USDC: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359" },
   },
   999: { name: "Hyperliquid", currency: "HYPE", opensea: "hyperevm", rpcEnv: "HYPEREVM_RPC", rpc: "https://rpc.hyperliquid.xyz/evm", gasReserve: 50_000_000_000_000_000n },
-  [relay.SOLANA_CHAIN_ID]: { name: "Solana", currency: "SOL", solana: true, gasReserve: 10_000_000n },
+  [relay.SOLANA_CHAIN_ID]: { name: "Solana", currency: "SOL", solana: true, gasReserve: 10_000_000n, tokens: { USDC: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" } },
 };
 
-const tokenSymbol = (t, token) => Object.keys(t.tokens || {}).find((k) => getAddress(t.tokens[k]) === getAddress(token)) || token;
+const tokenSymbol = (t, token) => Object.keys(t.tokens || {}).find((k) => t.tokens[k].toLowerCase() === String(token).toLowerCase()) || token;
 
 export class ExternalKeeper {
   /**
    * deps: { cfg, client (Robinhood public), account, send(label, req), opensea, solana,
    *         collections: [{chainId,address,name,slug}], bridge (optional override for tests),
    *         targetClients (optional override: chainId -> { public, wallet }),
-   *         paymentSpender (optional override for tests: who pulls ERC-20 payments) }
+   *         paymentSpender (optional override for tests: who pulls ERC-20 payments),
+   *         cc (Collector Crypt client, for Collector Crypt Card Vaults) }
    */
   constructor(deps) {
     Object.assign(this, deps);
@@ -113,7 +116,8 @@ export class ExternalKeeper {
   meta(chainId, collection32) {
     return this.collections.find((c) => {
       if (Number(c.chainId) !== chainId) return false;
-      if (TARGETS[chainId]?.solana) return this.solana?.toBytes32(c.address) === collection32.toLowerCase();
+      // Solana Card Vaults have no address in their id: it is the tag itself, 32 bytes.
+      if (TARGETS[chainId]?.solana) return c.tag ? `0x${tagHex(c.tag, 32)}` === collection32.toLowerCase() : this.solana?.toBytes32(c.address) === collection32.toLowerCase();
       return `0x${collection32.slice(-40)}`.toLowerCase() === c.address.toLowerCase() && collection32.slice(2, 26).toLowerCase() === tagHex(c.tag);
     });
   }
@@ -140,6 +144,7 @@ export class ExternalKeeper {
    */
   async floor(l, meta) {
     const t = TARGETS[l.chainId];
+    if (meta.market === "collectorcrypt") return this.collectorCryptFloor(l, meta);
     if (meta.match?.length && !t.solana) return this.cardFloor(l, meta);
     let listing;
     if (t.solana) {
@@ -195,6 +200,20 @@ export class ExternalKeeper {
     return { ...options[0], options };
   }
 
+  /** Collector Crypt Card Vaults: the cheapest graded card of the category, paid in USDC. */
+  async collectorCryptFloor(l, meta) {
+    const t = TARGETS[l.chainId];
+    if (!this.cc) return warn(`#${l.id} Collector Crypt client missing`), null;
+    const [listing] = await this.cc.cheapest(meta.category, { want: 1 });
+    if (!listing) return warn(`#${l.id} no ${meta.name} listed on Collector Crypt`), null;
+    listing.tokenId = BigInt(this.solana.toBytes32(listing.mint));
+    const usdc = t.tokens.USDC;
+    const q = await this.bridgeQuote(l.chainId, listing.price, "EXACT_OUTPUT", usdc);
+    const gas = await this.targetBalance(l.chainId) >= t.gasReserve ? 0n : (await this.bridgeQuote(l.chainId, t.gasReserve, "EXACT_OUTPUT")).amountIn;
+    const f = { listing, needed: listing.price, paymentToken: usdc, ethCost: q.amountIn + gas };
+    return { ...f, options: [f] };
+  }
+
   recipient(chainId) {
     return TARGETS[chainId].solana ? this.solana.address : this.account.address;
   }
@@ -232,7 +251,7 @@ export class ExternalKeeper {
 
   /** Keeper's balance on the target chain: its coin, or `token` (an ERC-20) when given. */
   async targetBalance(chainId, token = NATIVE) {
-    if (TARGETS[chainId].solana) return this.solana.balance();
+    if (TARGETS[chainId].solana) return token === NATIVE ? this.solana.balance() : this.solana.tokenBalance(token);
     const { public: pub } = this.target(chainId);
     if (token !== NATIVE) return pub.readContract({ address: token, abi: erc20, functionName: "balanceOf", args: [this.account.address] });
     return pub.getBalance({ address: this.account.address });
@@ -252,7 +271,7 @@ export class ExternalKeeper {
     const r = (fn) => this.client.readContract({ address: l.vault, abi: extVaultAbi, functionName: fn });
     const [pendingBefore, readyAt] = await Promise.all([r("pendingAmount"), r("pendingReadyAt")]);
     const now = (await this.client.getBlock()).timestamp;
-    const card = !!meta.match?.length;
+    const card = meta.kind === "cards";
     let floor;
 
     // 3. Execute a ready withdrawal and bridge it straight away. Card Vaults price first so the
@@ -300,7 +319,12 @@ export class ExternalKeeper {
   async buy(l, { listing, ethCost, paymentToken = NATIVE }) {
     const t = TARGETS[l.chainId];
     let txId;
-    if (t.solana) {
+    if (t.solana && listing.cc) {
+      // Collector Crypt cards are real cards: a "burn" coin keeps them rather than destroying the NFT.
+      txId = await this.solana.buyCollectorCrypt(this.cc, listing, this.cfg.dryRun);
+      if (!txId) return;
+      if (l.policy === "burn") warn(`#${l.id} burn policy: keeping card ${listing.mint} (Collector Crypt cards are not burned)`);
+    } else if (t.solana) {
       txId = await this.solana.buy(listing, this.opensea.forChain("solana"), this.cfg.dryRun);
       if (!txId) return;
       if (l.policy === "burn") await this.solana.burn(listing.mint, this.cfg.dryRun);

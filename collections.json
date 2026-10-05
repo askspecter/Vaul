@@ -3091,5 +3091,27 @@
    "one piece"
   ],
   "image": "assets/cards/onepiece.jpg"
+ },
+ {
+  "chainId": 792703809,
+  "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac",
+  "kind": "cards",
+  "market": "collectorcrypt",
+  "source": "Collector Crypt",
+  "tag": "cc-pokemon",
+  "category": "Pokemon",
+  "name": "Pokémon Cards",
+  "image": "assets/cards/pokemon.jpg"
+ },
+ {
+  "chainId": 792703809,
+  "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac",
+  "kind": "cards",
+  "market": "collectorcrypt",
+  "source": "Collector Crypt",
+  "tag": "cc-onepiece",
+  "category": "One Piece",
+  "name": "One Piece Cards",
+  "image": "assets/cards/onepiece.jpg"
  }
 ]

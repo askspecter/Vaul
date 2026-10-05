@@ -1,6 +1,6 @@
 import {
   $, esc, live, toast, renderChrome, collectionMeta, collectionKey, listedCollections, loadLaunches, coinCard, eth,
-  externalLive, client, CONFIG, ABI, write, walletClient, friendlyError, short,
+  externalLive, client, CONFIG, ABI, write, walletClient, friendlyError, short, chainIcon, chainName,
 } from "../lib.js";
 
 renderChrome("cards");
@@ -10,7 +10,9 @@ const launchHref = (c) => `launch?collection=${encodeURIComponent(c.key)}`;
 async function render() {
   const cats = (await collectionMeta())
     .filter((c) => c.kind === "cards")
-    .map((c) => ({ ...c, key: collectionKey(c.chainId, c.address, c.tag) }));
+    .map((c) => ({ ...c, key: collectionKey(c.chainId, c.address, c.tag) }))
+    // Collector Crypt first: it is where most graded Pokémon and One Piece cards trade.
+    .sort((a, b) => (b.market === "collectorcrypt") - (a.market === "collectorcrypt"));
   const [listed, launches] = live && externalLive
     ? await Promise.all([listedCollections(), loadLaunches(500).catch(() => [])])
     : [[], []];
@@ -19,7 +21,7 @@ async function render() {
 
   // Hero buttons go straight to the launch wizard with the category picked.
   document.querySelectorAll("#cvCtas [data-cat]").forEach((a) => {
-    const c = cats.find((x) => x.tag === a.dataset.cat);
+    const c = cats.filter((x) => x.name.toLowerCase().startsWith(a.dataset.cat)).sort((x, y) => isOpen(y) - isOpen(x))[0];
     if (c && isOpen(c)) a.href = launchHref(c);
     else {
       a.removeAttribute("href");
@@ -39,7 +41,7 @@ async function render() {
       <div class="cv-cat-art"><img src="${esc(c.image)}" alt="" loading="lazy" /></div>
       <div class="cv-cat-body">
         <h3>${esc(c.name)}</h3>
-        <p>Graded cards from ${esc(c.source || "the vault")}, delivered on Polygon.</p>
+        <p class="cv-src">${chainIcon(c.chainId)}<span>Graded cards from <b>${esc(c.source || "the vault")}</b>, delivered on ${esc(chainName(c.chainId))}.</span></p>
         <dl><div><dt>Coins</dt><dd>${coins.length}</dd></div><div><dt>In vaults</dt><dd>${eth(vault, 3)} ETH</dd></div><div><dt>Cards bought</dt><dd>${cards}</dd></div></dl>
         ${isOpen(c)
           ? `<a class="btn btn-dark wide" href="${launchHref(c)}">Launch a ${esc(c.name.replace(/ Cards$/, ""))} coin</a>`
@@ -64,7 +66,7 @@ async function renderSetup(cats, isOpen) {
   $("#cvSetup").hidden = false;
   $("#cvSetupRows").innerHTML = cats.map((c) => `
     <div class="cv-setup-row">
-      <span><b>${esc(c.name)}</b><small class="mono">key ${short(c.key)}</small></span>
+      <span><b>${esc(c.name)} · ${esc(c.source)}</b><small class="mono">key ${short(c.key)}</small></span>
       ${isOpen(c) ? `<span class="pill">Listed ✓</span>` : `<button class="btn btn-dark btn-sm" data-list="${c.key}">List it</button>`}
     </div>`).join("") + `<p class="hint">Registry owner: <span class="mono">${short(owner)}</span></p>`;
   $("#cvSetupRows").addEventListener("click", async (e) => {

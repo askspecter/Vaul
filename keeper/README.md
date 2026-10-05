@@ -41,20 +41,33 @@ The e2e test runs harvest, buy, snapshot, openRaffle, commitDraw, draw and deliv
 
 ## Card Vaults
 
-A Card Vault coin collects one category of a mixed card collection, e.g. the Pokémon cards on Courtyard (graded cards held in a vault, as NFTs on Polygon). Its `collections.json` entry has `kind: "cards"`, a `tag` and `match` words:
+A Card Vault coin collects real graded trading cards of one category (Pokémon or One Piece). Its `collections.json` entry has `kind: "cards"` and a `tag`, which goes into the vault's collection id so each category gets its own Registry key. Two sources are supported:
+
+**Collector Crypt (Solana)**, via its own API (https://docs.collectorcrypt.com/marketplace/api):
+
+```json
+{ "chainId": 792703809, "address": "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac", "kind": "cards",
+  "market": "collectorcrypt", "tag": "cc-pokemon", "category": "Pokemon", "name": "Pokémon Cards" }
+```
+
+- The id is the tag alone (32 bytes); the address is Collector Crypt's collection, for display.
+- The keeper pages `GET /marketplace` by listed price and takes the cheapest card with that `category`, a grading company, a USDC listing on Collector Crypt's own marketplace, and the MPL Core standard (most of them; Core is what the keeper can deliver).
+- It bridges the withdrawal to USDC on Solana (plus SOL for fees when short), gets the unsigned buy transaction from `POST /marketplace/buy`, signs it with `KEEPER_SOLANA_KEY` and broadcasts it through `POST /marketplace/broadcast`, then checks the card is in its wallet.
+- Prizes go out with a Metaplex Core transfer to the Solana address the winner saves on the Giveaways page. "Burn" is not offered for cards; a burn coin would keep them.
+- `COLLECTOR_CRYPT_API_KEY` (optional, `ccsk_…`, from support@collectorcrypt.com) raises the API's rate limits 10×. Reads and transaction builders work without it.
+
+**Courtyard (Polygon)**, via OpenSea:
 
 ```json
 { "chainId": 137, "address": "0x251BE3A17Af4892035C37ebf5890F4a4D889dcAD", "slug": "courtyard-nft",
   "kind": "cards", "tag": "pokemon", "match": ["pokemon", "pokémon"], "name": "Pokémon Cards" }
 ```
 
-- The tag fills the 12 bytes in front of the address in the vault's collection id, so each category has its own Registry key (`collectionKey(137, id)`). The Registry owner lists each key once.
-- The keeper reads the 50 cheapest listings, looks up each NFT's name and traits (up to 25 lookups per pass), and buys the cheapest whose text contains a `match` word.
-- Listings in POL or USDC are both used. For USDC the keeper bridges the withdrawal to USDC on Polygon (topping up POL for gas when short), approves OpenSea's conduit for the exact price, and buys.
-- Raffle winners receive the card NFT at the same address on Polygon and can redeem the physical card with Courtyard.
-- `POLYGON_RPC` overrides the default public RPC.
+- The tag fills the 12 bytes in front of the address in the vault's collection id.
+- The keeper reads the 50 cheapest listings, looks up each NFT's name and traits (up to 25 lookups per pass), and buys the cheapest whose text contains a `match` word, paying in POL or USDC (it bridges to USDC, tops up POL for gas, and approves OpenSea's conduit for the exact price).
+- Winners receive the card NFT at the same address on Polygon. `POLYGON_RPC` overrides the default public RPC.
 
-`bash test/e2e-cards.sh` runs the whole flow on two local chains (needs foundry).
+`bash test/e2e-cards.sh` runs the Courtyard flow on two local chains (needs foundry); `npm test` covers both sources.
 
 ## Notes
 
