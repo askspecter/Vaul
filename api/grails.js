@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     const specs = all.filter((c) => c.kind === "grail");
     const [cc, usd] = await Promise.all([client(), ethUsd()]);
     const grails = await Promise.all(specs.map(async (g) => {
-      const [l] = await cc.cheapest(g, { want: 1, pages: 3 }).catch(() => []);
+      const [l] = await cc.cheapest(g, { want: 1, pages: 3, step: 200 }).catch(() => []);
       return {
         tag: g.tag, name: g.name,
         priceUsd: l ? l.usdc : null, priceEth: l ? l.usdc / usd : null,

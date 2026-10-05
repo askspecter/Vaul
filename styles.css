@@ -1032,3 +1032,4 @@ a.nft:hover { border-color: var(--accent); }
 .grail-progress .gp-bar i { display: block; height: 100%; border-radius: 99px; background: var(--ribbon); box-shadow: 0 0 18px rgba(123, 92, 255, .7); }
 .grail-progress p { margin: 0; color: var(--muted); font-size: 13px; }
 @media (max-width: 520px) { .grail-progress { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; } .grail-progress img { width: 84px; } .grail-progress .gp-pct { font-size: 30px; } }
+.gm-wait { color: var(--muted); }
