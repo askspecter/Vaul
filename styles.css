@@ -989,9 +989,5 @@ a.nft:hover { border-color: var(--accent); }
   .cv-promo-cards img { width: 112px; transform: translate(-50%, -50%) translateX(calc(var(--i) * 68px)) rotate(calc(var(--i) * 9deg)); }
   .cv-promo-cards img.top { width: 126px; }
 }
-.cv-setup { margin-top: 48px; }
-.cv-setup h3 { margin: 0 0 6px; }
-.cv-setup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
-.cv-setup-row small { display: block; color: var(--muted); }
 .cv-src { display: flex; gap: 8px; align-items: flex-start; }
 .cv-src b { color: var(--ink-2); font-weight: 600; }

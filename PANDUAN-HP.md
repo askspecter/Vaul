@@ -73,7 +73,7 @@ Card Vaults memakai ExternalLauncher yang sudah ada, jadi **tidak perlu deploy k
 | Pokémon Cards | Courtyard | Polygon | `0x4A427aD3bFa8AB3602744ed397c90Aa1c03f2508` |
 | One Piece Cards | Courtyard | Polygon | `0x4CFFE73c164c2059F6055074BdE8021Ab6B84bff` |
 
-**Sekali saja, dari HP:** buka `vaul.app/cards?setup`, sambungkan wallet **Owner**, lalu tekan **List it** untuk kategori yang mau dibuka (1 transaksi kecil per kategori). Setelah itu tombol launch di halaman Cards langsung aktif.
+Keempat kategori ini **sudah terdaftar** di Registry (5 Okt 2026), jadi tombol launch di halaman Cards sudah aktif. Kalau suatu saat perlu menambah kategori baru, panggil `setCollection(key, true)` di Registry dengan akun Owner (lihat `DEPLOY.md`).
 
 **Untuk Collector Crypt (Solana) keeper butuh wallet Solana:**
 1. Buat akun Solana baru khusus keeper (misalnya di Phantom → Add account), lalu ekspor private key-nya.

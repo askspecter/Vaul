@@ -64,8 +64,6 @@ export const ABI = {
     "function isCollection(address) view returns (bool)",
     "function keeper() view returns (address)",
     "function treasury() view returns (address)",
-    "function owner() view returns (address)",
-    "function setCollection(address collection, bool listed)",
   ]),
   router: parseAbi([
     "function pending() view returns (uint256)",

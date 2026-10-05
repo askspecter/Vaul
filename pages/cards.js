@@ -1,6 +1,6 @@
 import {
   $, esc, live, toast, renderChrome, collectionMeta, collectionKey, listedCollections, loadLaunches, coinCard, eth,
-  externalLive, client, CONFIG, ABI, write, walletClient, friendlyError, short, chainIcon, chainName,
+  externalLive, chainIcon, chainName,
 } from "../lib.js";
 
 renderChrome("cards");
@@ -50,43 +50,11 @@ async function render() {
     </article>`;
   }).join("");
 
-  if (new URLSearchParams(location.search).has("setup")) renderSetup(cats, isOpen);
-
   const keys = new Set(cats.map((c) => c.key.toLowerCase()));
   const mine = launches.filter((l) => keys.has(l.collection.toLowerCase()));
   $("#cvCoins").innerHTML = mine.length
     ? mine.map(coinCard).join("")
     : `<p class="empty">No card coins yet. The first one starts the first vault.</p>`;
-}
-
-/** /cards?setup: the Registry owner lists each card category (setCollection) from any wallet app. */
-async function renderSetup(cats, isOpen) {
-  const registry = await client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" });
-  const owner = await client.readContract({ address: registry, abi: ABI.registry, functionName: "owner" });
-  $("#cvSetup").hidden = false;
-  $("#cvSetupRows").innerHTML = cats.map((c) => `
-    <div class="cv-setup-row">
-      <span><b>${esc(c.name)} · ${esc(c.source)}</b><small class="mono">key ${short(c.key)}</small></span>
-      ${isOpen(c) ? `<span class="pill">Listed ✓</span>` : `<button class="btn btn-dark btn-sm" data-list="${c.key}">List it</button>`}
-    </div>`).join("") + `<p class="hint">Registry owner: <span class="mono">${short(owner)}</span></p>`;
-  $("#cvSetupRows").addEventListener("click", async (e) => {
-    const b = e.target.closest("[data-list]");
-    if (!b) return;
-    b.disabled = true;
-    try {
-      const wallet = await walletClient();
-      if (wallet.account.address.toLowerCase() !== owner.toLowerCase()) throw new Error(`Connect the Registry owner wallet (${short(owner)}).`);
-      b.textContent = "Confirm in your wallet…";
-      await write({ address: registry, abi: ABI.registry, functionName: "setCollection", args: [b.dataset.list, true] });
-      toast("Listed");
-      location.reload();
-    } catch (err) {
-      console.error(err);
-      toast(friendlyError(err));
-      b.textContent = "List it";
-      b.disabled = false;
-    }
-  });
 }
 
 render().catch((e) => {
