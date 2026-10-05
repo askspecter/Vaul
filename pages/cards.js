@@ -1,6 +1,6 @@
 import {
   $, esc, live, toast, renderChrome, collectionMeta, collectionKey, isListed, loadLaunches, coinCard, eth,
-  externalLive, chainIcon, chainName, loadGrails,
+  externalLive, chainIcon, chainName, loadGrails, client, CONFIG, ABI, write, walletClient, friendlyError, short,
 } from "../lib.js";
 
 renderChrome("cards");
@@ -90,7 +90,49 @@ function drawCoins() {
     : `<p class="empty">No card coins yet. The first one starts the first vault.</p>`;
 }
 
-function draw() { drawHero(); drawCategories(); drawGrails(); drawCoins(); }
+function draw() { drawHero(); drawCategories(); drawGrails(); drawCoins(); drawSetup(); }
+
+// /cards?setup: the Registry owner lists categories and grails (setCollection) from a phone wallet.
+const SETUP = new URLSearchParams(location.search).has("setup");
+let setup = null; // { registry, owner }
+async function initSetup() {
+  if (!SETUP || !live) return;
+  const registry = await client.readContract({ address: CONFIG.launcher, abi: ABI.launcher, functionName: "registry" });
+  const owner = await client.readContract({ address: registry, abi: ABI.registry, functionName: "owner" });
+  setup = { registry, owner };
+  $("#cvSetup").hidden = false;
+  drawSetup();
+  $("#cvSetup").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("#cvSetupRows").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-list]");
+    if (!b) return;
+    b.disabled = true;
+    try {
+      const wallet = await walletClient();
+      if (wallet.account.address.toLowerCase() !== owner.toLowerCase()) throw new Error(`Connect the Registry owner wallet (${short(owner)}).`);
+      b.textContent = "Confirm in your wallet…";
+      await write({ address: registry, abi: ABI.registry, functionName: "setCollection", args: [b.dataset.list, true] });
+      toast("Listed");
+      state.open?.add(b.dataset.list.toLowerCase());
+      draw();
+    } catch (err) {
+      console.error(err);
+      toast(friendlyError(err));
+      b.textContent = "List it";
+      b.disabled = false;
+    }
+  });
+}
+
+function drawSetup() {
+  if (!setup) return;
+  const rows = [...state.grails.map((g) => [g, "Grail"]), ...state.cats.map((c) => [c, "Category"])];
+  $("#cvSetupRows").innerHTML = rows.map(([c, kind]) => `
+    <div class="cv-setup-row">
+      <span><b>${esc(c.name)}</b> <small class="muted">· ${kind} · ${esc(c.source || "")}</small><small class="mono">key ${short(c.key)}</small></span>
+      ${state.open === null ? `<span class="muted small">Checking…</span>` : isOpen(c) ? `<span class="pill">Listed ✓</span>` : `<button class="btn btn-dark btn-sm" data-list="${c.key}">List it</button>`}
+    </div>`).join("") + `<p class="hint">Registry owner: <span class="mono">${short(setup.owner)}</span></p>`;
+}
 
 async function render() {
   const meta = await collectionMeta();
@@ -102,6 +144,7 @@ async function render() {
   draw();
 
   loadGrails().then(({ byTag }) => { state.prices = byTag; drawGrails(); });
+  initSetup().catch((e) => console.error(e));
   if (!live || !externalLive) {
     state.open = new Set(); state.launches = [];
     return draw();

@@ -1033,3 +1033,8 @@ a.nft:hover { border-color: var(--accent); }
 .grail-progress p { margin: 0; color: var(--muted); font-size: 13px; }
 @media (max-width: 520px) { .grail-progress { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; } .grail-progress img { width: 84px; } .grail-progress .gp-pct { font-size: 30px; } }
 .gm-wait { color: var(--muted); }
+.cv-setup { margin-top: 48px; }
+.cv-setup h3 { margin: 0 0 6px; }
+.cv-setup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.cv-setup-row small.mono { display: block; color: var(--muted); }
+.cv-setup-row .btn, .cv-setup-row .pill { flex: none; white-space: nowrap; }
