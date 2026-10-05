@@ -140,6 +140,8 @@ function renderSummary() {
   const s = split();
   $("#facts").innerHTML = [
     `80% of everything your coin earns goes to the ${state.collection ? esc(state.collection.name) : "collection"} vault and 20% to the treasury. This split is fixed in the fee router's code, and nobody can change it.`,
+    state.collection?.kind === "cards"
+      ? `Each card the vault buys is the cheapest graded ${esc(state.collection.name.replace(/ Cards$/, ""))} card listed at the time, a real card held by ${esc(state.collection.source || "its custodian")} and represented by an NFT on ${esc(state.collection.chain)}. Winners receive it at the same wallet address there and can redeem the physical card.` : "",
     state.collection && state.collection.chainId !== ROBINHOOD
       ? `This collection is on ${esc(state.collection.chain)}. The keeper moves the vault's ETH there to buy: every withdrawal is announced 1 hour ahead and can be cancelled, and each purchase is recorded on Robinhood Chain.`
       : "The collection and the NFT rule are permanent. The vault has no withdraw function.",
@@ -315,7 +317,7 @@ $("#launchBtn").addEventListener("click", async (e) => {
       policy: policy(),
     };
     const args = [external
-      ? { ...base, chainId: BigInt(state.collection.chainId), collection: collectionId(state.collection.chainId, state.collection.address), isEvm: !!CONFIG.chains[state.collection.chainId]?.evm }
+      ? { ...base, chainId: BigInt(state.collection.chainId), collection: collectionId(state.collection.chainId, state.collection.address, state.collection.tag), isEvm: !!CONFIG.chains[state.collection.chainId]?.evm }
       : { ...base, collection: state.collection.address }];
     const target = external ? CONFIG.externalLauncher : CONFIG.launcher;
     const abi = external ? ABI.extLauncher : ABI.launcher;

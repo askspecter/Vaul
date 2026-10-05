@@ -13,7 +13,8 @@ import {IPonsFactory, IPonsFeeEscrow} from "../src/interfaces/IPons.sol";
 import {MockPons} from "../test/Mocks.sol";
 
 /// Robinhood-side setup for the keeper's other-chain e2e test.
-/// Env: OWNER_KEY, KEEPER_KEY, ALICE, BOB, TARGET_CHAIN, TARGET_NFT.
+/// Env: OWNER_KEY, KEEPER_KEY, ALICE, BOB, TARGET_CHAIN, TARGET_NFT, and optionally TARGET_TAG
+/// (a Card Vault category tag, left-aligned bytes32, placed in front of the address).
 contract ExternalDemo is Script {
     function run() external {
         uint256 ownerKey = vm.envUint("OWNER_KEY");
@@ -30,7 +31,7 @@ contract ExternalDemo is Script {
         console.log("LAUNCHER", address(rhLauncher));
 
         uint64 chainId = uint64(vm.envUint("TARGET_CHAIN"));
-        bytes32 collection = bytes32(uint256(uint160(vm.envAddress("TARGET_NFT"))));
+        bytes32 collection = vm.envOr("TARGET_TAG", bytes32(0)) | bytes32(uint256(uint160(vm.envAddress("TARGET_NFT"))));
         registry.setCollection(launcher.collectionKey(chainId, collection), true);
 
         ExternalLauncher.LaunchParams memory p;

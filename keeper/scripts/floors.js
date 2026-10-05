@@ -45,7 +45,7 @@ const collections = JSON.parse(await readFile("../collections.json", "utf8"));
 const usd = await usdRates();
 const items = [];
 for (const c of collections) {
-  if (!c.slug) continue;
+  if (!c.slug || c.kind === "cards") continue; // Card Vaults buy one category; the whole collection's floor would mislead
   try {
     const s = await os(`/collections/${c.slug}/stats`);
     const week = (s.intervals || []).find((i) => i.interval === "seven_day") || {};

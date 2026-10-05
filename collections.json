@@ -3064,5 +3064,32 @@
   "name": "DRiP Shared Collection",
   "slug": "drip-shared-collection",
   "image": "https://i2c.seadn.io/solana/2ZyxAjiHfDncZA9TgCWGC6qHMzuYqyxQAdARtuM8zW7t/bbbe247eab35ab0d08a704a4eea26a/33bbbe247eab35ab0d08a704a4eea26a.png"
+ },
+ {
+  "chainId": 137,
+  "address": "0x251BE3A17Af4892035C37ebf5890F4a4D889dcAD",
+  "slug": "courtyard-nft",
+  "kind": "cards",
+  "source": "Courtyard",
+  "tag": "pokemon",
+  "name": "Pokémon Cards",
+  "match": [
+   "pokemon",
+   "pokémon"
+  ],
+  "image": "assets/cards/pokemon.jpg"
+ },
+ {
+  "chainId": 137,
+  "address": "0x251BE3A17Af4892035C37ebf5890F4a4D889dcAD",
+  "slug": "courtyard-nft",
+  "kind": "cards",
+  "source": "Courtyard",
+  "tag": "onepiece",
+  "name": "One Piece Cards",
+  "match": [
+   "one piece"
+  ],
+  "image": "assets/cards/onepiece.jpg"
  }
 ]

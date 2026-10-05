@@ -39,6 +39,23 @@ bash test/e2e.sh   # needs foundry; runs anvil with mocked Pons + marketplace
 
 The e2e test runs harvest, buy, snapshot, openRaffle, commitDraw, draw and delivery, and checks that the NFT reaches a holder.
 
+## Card Vaults
+
+A Card Vault coin collects one category of a mixed card collection, e.g. the Pokémon cards on Courtyard (graded cards held in a vault, as NFTs on Polygon). Its `collections.json` entry has `kind: "cards"`, a `tag` and `match` words:
+
+```json
+{ "chainId": 137, "address": "0x251BE3A17Af4892035C37ebf5890F4a4D889dcAD", "slug": "courtyard-nft",
+  "kind": "cards", "tag": "pokemon", "match": ["pokemon", "pokémon"], "name": "Pokémon Cards" }
+```
+
+- The tag fills the 12 bytes in front of the address in the vault's collection id, so each category has its own Registry key (`collectionKey(137, id)`). The Registry owner lists each key once.
+- The keeper reads the 50 cheapest listings, looks up each NFT's name and traits (up to 25 lookups per pass), and buys the cheapest whose text contains a `match` word.
+- Listings in POL or USDC are both used. For USDC the keeper bridges the withdrawal to USDC on Polygon (topping up POL for gas when short), approves OpenSea's conduit for the exact price, and buys.
+- Raffle winners receive the card NFT at the same address on Polygon and can redeem the physical card with Courtyard.
+- `POLYGON_RPC` overrides the default public RPC.
+
+`bash test/e2e-cards.sh` runs the whole flow on two local chains (needs foundry).
+
 ## Notes
 
 - Keep the keeper key separate from the Registry owner key. If the keeper key leaks, the owner calls `Registry.setKeeper(newAddress)`.

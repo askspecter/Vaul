@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Card Vaults · Vaul</title>
+  <!-- social -->
+  <meta name="description" content="Launch a coin paired with Pokémon or One Piece. Its fees buy real graded cards, raffled to holders." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Vaul" />
+  <meta property="og:title" content="Card Vaults on Vaul" />
+  <meta property="og:description" content="Launch a coin paired with Pokémon or One Piece. Its fees buy real graded cards, raffled to holders." />
+  <meta property="og:url" content="https://vaul.app/cards" />
+  <meta property="og:image" content="https://vaul.app/assets/brand/og.jpg" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1260" />
+  <meta property="og:image:alt" content="Vaul: Memecoins with a vault inside." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@UseVaul" />
+  <meta name="twitter:title" content="Card Vaults on Vaul" />
+  <meta name="twitter:description" content="Launch a coin paired with Pokémon or One Piece. Its fees buy real graded cards, raffled to holders." />
+  <meta name="twitter:image" content="https://vaul.app/assets/brand/og.jpg" />
+  <!-- /social -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/brand/favicon-64.png" />
+  <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header id="site-header"></header>
+  <main class="page cv">
+    <section class="cv-hero">
+      <div class="cv-copy">
+        <span class="cv-eyebrow"><i></i>New · Card Vaults</span>
+        <h1 class="page-title cv-title">Coins that collect <em>real cards</em>.</h1>
+        <p class="lead-left">Launch a coin paired with Pokémon or One Piece. Every trade fills its vault, the vault buys a graded card, and the card is raffled to holders.</p>
+        <div class="cv-ctas" id="cvCtas">
+          <a class="btn btn-dark btn-lg" data-cat="pokemon" href="launch">Launch a Pokémon coin</a>
+          <a class="btn btn-ghost btn-lg" data-cat="onepiece" href="launch">Launch a One Piece coin</a>
+        </div>
+        <p class="cv-note" id="cvNote" hidden></p>
+      </div>
+      <div class="cv-fan" aria-hidden="true">
+        <img src="assets/cards/pikachu.jpg" alt="" style="--i:-2" />
+        <img src="assets/cards/shanks.jpg" alt="" style="--i:-1" />
+        <img src="assets/cards/umbreon.jpg" alt="" style="--i:1" />
+        <img src="assets/cards/yamato.jpg" alt="" style="--i:2" />
+        <img src="assets/cards/charizard.jpg" alt="" style="--i:0" class="cv-top" />
+      </div>
+    </section>
+
+    <ol class="cv-flow">
+      <li><b>01</b><span>Trade</span><small>Every buy and sell of the coin pays a fee.</small></li>
+      <li><b>02</b><span>Vault fills</span><small>80% of the fees lands in the coin's own vault.</small></li>
+      <li><b>03</b><span>Card bought</span><small>The keeper buys the cheapest graded card listed in the coin's category.</small></li>
+      <li><b>04</b><span>Holder wins</span><small>The card is raffled to holders, weighted by balance.</small></li>
+    </ol>
+
+    <h2 class="cv-h2">Pick a category</h2>
+    <div class="cv-cats" id="cvCats"><p class="empty">Loading…</p></div>
+
+    <div class="row-head cv-row"><h2 class="cv-h2">Card coins</h2></div>
+    <div class="grid" id="cvCoins"><p class="empty">Loading…</p></div>
+
+    <section class="card cv-setup" id="cvSetup" hidden>
+      <h3>Owner setup</h3>
+      <p class="muted">Lists each card category in the Vaul Registry so coins can be launched with it. Only the Registry owner's wallet can do this, one transaction per category.</p>
+      <div id="cvSetupRows"></div>
+    </section>
+
+    <h2 class="cv-h2">Questions</h2>
+    <div class="cv-faq">
+      <details open><summary>Are these real cards?</summary><p>Yes. Each card is a professionally graded card stored in <a href="https://courtyard.io" target="_blank" rel="noopener">Courtyard</a>'s insured vault and represented by an NFT on Polygon. Whoever holds the NFT can trade it or redeem it for the physical card.</p></details>
+      <details><summary>Which card does the vault buy?</summary><p>The cheapest graded card listed on OpenSea in the coin's category (Pokémon or One Piece) at the time the vault can afford it. The keeper checks each listing's name and traits, so a basketball card never ends up in a Pokémon vault.</p></details>
+      <details><summary>How do I get a card I win?</summary><p>The card NFT is sent on Polygon to the same wallet address that held the coin. You can see it on OpenSea or Courtyard, keep it, sell it, or redeem it on Courtyard to have the physical card shipped.</p></details>
+      <details><summary>How does ETH get from the vault to Polygon?</summary><p>The keeper announces each withdrawal one hour ahead, and the Registry owner can cancel it. It then bridges exactly that ETH to Polygon (as USDC or POL, whichever the card is listed in), buys the card, and records the purchase and its Polygon transaction on Robinhood Chain.</p></details>
+      <details><summary>Can I keep the cards in the vault instead?</summary><p>Yes. At launch you choose what happens to each card: raffle it to holders, keep it in the vault, or burn it. The choice is permanent.</p></details>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="pages/cards.js"></script>
+</body>
+</html>

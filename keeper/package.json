@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node src/index.js",
     "once": "node src/index.js --once",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"

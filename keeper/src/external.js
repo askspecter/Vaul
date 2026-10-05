@@ -1,4 +1,5 @@
-// Keeper flow for coins whose collection lives on another chain (Ethereum, Base, Hyperliquid, Solana).
+// Keeper flow for coins whose collection lives on another chain (Ethereum, Base, Hyperliquid,
+// Polygon, Solana).
 //
 // Per external vault, each pass:
 //   1. price the cheapest OpenSea listing on the target chain, in ETH (via a Relay quote for HYPE/SOL);
@@ -8,6 +9,11 @@
 //   4. buy the listing there, burn it if the coin's policy says so, and record it on Robinhood Chain;
 //   5. deliver raffle prizes the Raffles contract assigned (EVM: same address; Solana: the
 //      destination the winner saved) and mark them delivered.
+//
+// Card Vaults pair a coin with one category of a mixed collection (e.g. the Pokémon cards on
+// Courtyard). Their collections.json entry has a `tag` (stored in the vault's collection id, in
+// front of the address) and `match` words; the keeper buys the cheapest listing whose name or
+// traits contain one of the words, paying in the chain's coin or a listed token such as USDC.
 import { createPublicClient, createWalletClient, http, defineChain, parseAbi, getAddress, keccak256, toHex, formatEther } from "viem";
 import * as relay from "./relay.js";
 import { log, warn } from "./log.js";
@@ -40,22 +46,50 @@ const erc721 = parseAbi([
   "function safeTransferFrom(address from, address to, uint256 tokenId)",
   "function transferFrom(address from, address to, uint256 tokenId)",
 ]);
+const erc20 = parseAbi([
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+]);
 const DEAD = "0x000000000000000000000000000000000000dEaD";
+const NATIVE = "0x0000000000000000000000000000000000000000";
+const OPENSEA_CONDUIT = "0x1E0049783F008A0085193E00003D00cd54003c71"; // pulls ERC-20 payments for Seaport listings
+const MAX_CARD_CHECKS = 25; // NFT metadata lookups per vault per pass
+
+/** A Card Vault category tag as the 12 bytes in front of the address (see lib.js tagHex). */
+export function tagHex(tag) {
+  if (!tag) return "0".repeat(24);
+  return [...tag].map((ch) => ch.charCodeAt(0).toString(16).padStart(2, "0")).join("").padEnd(24, "0");
+}
+
+/** True when the NFT's name, description or traits contain one of the entry's `match` words. */
+export function matchesCategory(nft, words) {
+  const norm = (x) => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const text = norm([nft.name, nft.description, ...nft.traits].join(" | "));
+  return words.some((w) => text.includes(norm(w)));
+}
 const POLICY = ["raffle", "hold", "burn"];
 
 /** Chain settings. Robinhood Chain ids follow Relay's chain ids for the targets. */
 export const TARGETS = {
   1: { name: "Ethereum", currency: "ETH", opensea: "ethereum", rpcEnv: "ETHEREUM_RPC", rpc: "https://ethereum-rpc.publicnode.com", gasReserve: 1_000_000_000_000_000n },
   8453: { name: "Base", currency: "ETH", opensea: "base", rpcEnv: "BASE_RPC", rpc: "https://base-rpc.publicnode.com", gasReserve: 50_000_000_000_000n },
+  137: {
+    name: "Polygon", currency: "POL", opensea: "matic", rpcEnv: "POLYGON_RPC", rpc: "https://polygon-bor-rpc.publicnode.com", gasReserve: 2_000_000_000_000_000_000n,
+    listingCurrencies: ["POL", "MATIC", "USDC"], tokens: { USDC: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359" },
+  },
   999: { name: "Hyperliquid", currency: "HYPE", opensea: "hyperevm", rpcEnv: "HYPEREVM_RPC", rpc: "https://rpc.hyperliquid.xyz/evm", gasReserve: 50_000_000_000_000_000n },
   [relay.SOLANA_CHAIN_ID]: { name: "Solana", currency: "SOL", solana: true, gasReserve: 10_000_000n },
 };
+
+const tokenSymbol = (t, token) => Object.keys(t.tokens || {}).find((k) => getAddress(t.tokens[k]) === getAddress(token)) || token;
 
 export class ExternalKeeper {
   /**
    * deps: { cfg, client (Robinhood public), account, send(label, req), opensea, solana,
    *         collections: [{chainId,address,name,slug}], bridge (optional override for tests),
-   *         targetClients (optional override: chainId -> { public, wallet }) }
+   *         targetClients (optional override: chainId -> { public, wallet }),
+   *         paymentSpender (optional override for tests: who pulls ERC-20 payments) }
    */
   constructor(deps) {
     Object.assign(this, deps);
@@ -80,7 +114,7 @@ export class ExternalKeeper {
     return this.collections.find((c) => {
       if (Number(c.chainId) !== chainId) return false;
       if (TARGETS[chainId]?.solana) return this.solana?.toBytes32(c.address) === collection32.toLowerCase();
-      return `0x${collection32.slice(-40)}`.toLowerCase() === c.address.toLowerCase();
+      return `0x${collection32.slice(-40)}`.toLowerCase() === c.address.toLowerCase() && collection32.slice(2, 26).toLowerCase() === tagHex(c.tag);
     });
   }
 
@@ -98,9 +132,15 @@ export class ExternalKeeper {
     return out;
   }
 
-  /** Cheapest listing on the target chain, with its ETH cost including bridge fees. */
+  /**
+   * Cheapest listing on the target chain, with its ETH cost including bridge fees.
+   * Returns { listing, needed, ethCost, paymentToken, options }: `needed` is what the keeper
+   * must hold there in the payment currency, and `options` lists every currency's cheapest
+   * listing (cheapest ETH cost first) so a buy can use whichever currency the keeper holds.
+   */
   async floor(l, meta) {
     const t = TARGETS[l.chainId];
+    if (meta.match?.length && !t.solana) return this.cardFloor(l, meta);
     let listing;
     if (t.solana) {
       [listing] = await this.opensea.forChain("solana").bestListingsBySlug(meta.slug);
@@ -118,31 +158,92 @@ export class ExternalKeeper {
     } else {
       ethCost = (needed * 10_100n) / 10_000n; // ~1% bridge fee headroom
     }
-    return { listing, needed, ethCost };
+    const f = { listing, needed, ethCost, paymentToken: NATIVE };
+    return { ...f, options: [f] };
+  }
+
+  /** Card Vaults: the cheapest listing per payment currency whose NFT matches the category. */
+  async cardFloor(l, meta) {
+    const t = TARGETS[l.chainId];
+    const os = this.opensea.forChain(t.opensea);
+    const listings = await os.bestListings(meta.address, 50, { currencies: t.listingCurrencies || [t.currency], slug: meta.slug });
+    const allowed = new Set([NATIVE, ...Object.values(t.tokens || {}).map((a) => getAddress(a))]);
+    this.cardChecks ||= new Map(); // `${token}:${id}` -> matches, kept for the process lifetime
+    const cheapest = new Map(); // payment token -> listing
+    let lookups = 0;
+    for (const x of listings) {
+      const pay = x.paymentToken || NATIVE;
+      if (cheapest.has(pay) || !allowed.has(pay)) continue;
+      const key = `${x.token}:${x.tokenId}`;
+      if (!this.cardChecks.has(key)) {
+        if (lookups++ >= MAX_CARD_CHECKS) break;
+        this.cardChecks.set(key, matchesCategory(await os.nft(x.token, x.tokenId), meta.match));
+      }
+      if (this.cardChecks.get(key)) cheapest.set(pay, x);
+    }
+    if (!cheapest.size) return warn(`#${l.id} no ${meta.name} listed in the cheapest ${listings.length} ${meta.slug} listings`), null;
+
+    const gasTopUp = async () => (await this.targetBalance(l.chainId) >= t.gasReserve ? 0n : (await this.bridgeQuote(l.chainId, t.gasReserve, "EXACT_OUTPUT")).amountIn);
+    const options = [];
+    for (const [pay, listing] of cheapest) {
+      const native = pay === NATIVE;
+      const needed = native ? listing.price + t.gasReserve : listing.price;
+      const q = await this.bridgeQuote(l.chainId, needed, "EXACT_OUTPUT", native ? undefined : pay);
+      options.push({ listing, needed, paymentToken: pay, ethCost: q.amountIn + (native ? 0n : await gasTopUp()) });
+    }
+    options.sort((a, b) => (a.ethCost < b.ethCost ? -1 : 1));
+    return { ...options[0], options };
   }
 
   recipient(chainId) {
     return TARGETS[chainId].solana ? this.solana.address : this.account.address;
   }
 
-  bridgeQuote(chainId, amount, tradeType) {
-    if (this.bridge) return this.bridge.quote(chainId, amount, tradeType);
+  bridgeQuote(chainId, amount, tradeType, destinationCurrency) {
+    if (this.bridge) return this.bridge.quote(chainId, amount, tradeType, destinationCurrency);
     return relay.quote({
       originChainId: this.cfg.chainId, destinationChainId: chainId,
-      user: this.account.address, recipient: this.recipient(chainId), amount, tradeType,
+      user: this.account.address, recipient: this.recipient(chainId), amount, tradeType, destinationCurrency,
     });
   }
 
-  async bridgeOut(chainId, amountWei) {
-    if (this.bridge) return this.bridge.send(chainId, amountWei);
-    const q = await this.bridgeQuote(chainId, amountWei, "EXACT_INPUT");
-    log(`bridging ${formatEther(amountWei)} ETH → ${TARGETS[chainId].name} (${q.amountOut} out)`);
+  /**
+   * Bridges `amountWei` of the vault's withdrawn ETH to the keeper on the target chain. With an
+   * ERC-20 `paymentToken` (Card Vaults paying in USDC) it first tops up the chain's coin for gas
+   * when the keeper is short, then sends the rest as that token.
+   */
+  async bridgeOut(chainId, amountWei, paymentToken = NATIVE) {
+    if (this.bridge) return this.bridge.send(chainId, amountWei, paymentToken);
+    const t = TARGETS[chainId];
+    let rest = amountWei;
+    if (paymentToken !== NATIVE && await this.targetBalance(chainId) < t.gasReserve) {
+      const gas = await this.bridgeQuote(chainId, t.gasReserve, "EXACT_OUTPUT");
+      if (gas.amountIn < rest) {
+        log(`bridging ${formatEther(gas.amountIn)} ETH → ${t.name} ${t.currency} for gas`);
+        await relay.execute(gas, { wallet: this.wallet, publicClient: this.client, log });
+        rest -= gas.amountIn;
+      }
+    }
+    const token = paymentToken === NATIVE ? undefined : paymentToken;
+    const q = await this.bridgeQuote(chainId, rest, "EXACT_INPUT", token);
+    log(`bridging ${formatEther(rest)} ETH → ${t.name}${token ? ` ${tokenSymbol(t, token)}` : ""} (${q.amountOut} out)`);
     await relay.execute(q, { wallet: this.wallet, publicClient: this.client, log });
   }
 
-  async targetBalance(chainId) {
+  /** Keeper's balance on the target chain: its coin, or `token` (an ERC-20) when given. */
+  async targetBalance(chainId, token = NATIVE) {
     if (TARGETS[chainId].solana) return this.solana.balance();
-    return this.target(chainId).public.getBalance({ address: this.account.address });
+    const { public: pub } = this.target(chainId);
+    if (token !== NATIVE) return pub.readContract({ address: token, abi: erc20, functionName: "balanceOf", args: [this.account.address] });
+    return pub.getBalance({ address: this.account.address });
+  }
+
+  /** True when the keeper holds enough on the target chain to buy `option` right now. */
+  async canBuy(chainId, option) {
+    const t = TARGETS[chainId];
+    if (option.paymentToken === NATIVE) return await this.targetBalance(chainId) >= option.listing.price + t.gasReserve / 2n;
+    return await this.targetBalance(chainId, option.paymentToken) >= option.listing.price
+      && await this.targetBalance(chainId) >= t.gasReserve / 2n;
   }
 
   async tick(l) {
@@ -151,12 +252,20 @@ export class ExternalKeeper {
     const r = (fn) => this.client.readContract({ address: l.vault, abi: extVaultAbi, functionName: fn });
     const [pendingBefore, readyAt] = await Promise.all([r("pendingAmount"), r("pendingReadyAt")]);
     const now = (await this.client.getBlock()).timestamp;
+    const card = !!meta.match?.length;
+    let floor;
 
-    // 3. Execute a ready withdrawal and bridge it straight away.
+    // 3. Execute a ready withdrawal and bridge it straight away. Card Vaults price first so the
+    //    ETH arrives in the currency the cheapest matching card is listed in.
     if (pendingBefore > 0n && now >= readyAt) {
+      if (card) {
+        floor = await this.floor(l, meta);
+        if (!floor) return warn(`#${l.id} withdrawal ready but no ${meta.name} listed — keeping it in the vault for now`);
+      }
       await this.send(`#${l.id} executeWithdrawal ${formatEther(pendingBefore)} ETH`, { address: l.vault, abi: extVaultAbi, functionName: "executeWithdrawal" });
       if (this.cfg.dryRun) return;
-      await this.bridgeOut(l.chainId, pendingBefore);
+      await this.bridgeOut(l.chainId, pendingBefore, floor?.paymentToken);
+      if (card) floor = await this.floor(l, meta); // re-read: the gas top-up changes the cost
     }
     // Read after any withdrawal above so this pass can buy with the funds it just moved.
     const [balance, pending, withdrawn, spent] = await Promise.all([
@@ -165,18 +274,17 @@ export class ExternalKeeper {
 
     await this.deliverPrizes(l);
 
-    const floor = await this.floor(l, meta);
+    floor ||= await this.floor(l, meta);
     if (!floor) return;
     const inFlight = withdrawn - spent; // ETH already moved for this vault but not yet spent
 
-    // 4. Buy when this vault's moved funds cover it and the keeper wallet there holds enough.
-    if (inFlight >= floor.ethCost || (inFlight > 0n && await this.targetBalance(l.chainId) >= floor.needed)) {
-      const have = await this.targetBalance(l.chainId);
-      if (have >= floor.listing.price + TARGETS[l.chainId].gasReserve / 2n) {
-        await this.buy(l, floor);
-        return;
+    // 4. Buy when this vault's moved funds cover it and the keeper wallet there holds enough,
+    //    in whichever listed currency it holds (the cheapest one may have changed since).
+    if (inFlight > 0n) {
+      for (const option of floor.options) {
+        if (await this.canBuy(l.chainId, option)) return this.buy(l, option);
       }
-      return warn(`#${l.id} waiting for bridged funds on ${TARGETS[l.chainId].name}`);
+      if (inFlight >= floor.ethCost) return warn(`#${l.id} waiting for bridged funds on ${TARGETS[l.chainId].name}`);
     }
 
     // 2. Announce a withdrawal when the vault can pay for the floor.
@@ -189,7 +297,7 @@ export class ExternalKeeper {
     }
   }
 
-  async buy(l, { listing, ethCost }) {
+  async buy(l, { listing, ethCost, paymentToken = NATIVE }) {
     const t = TARGETS[l.chainId];
     let txId;
     if (t.solana) {
@@ -199,7 +307,9 @@ export class ExternalKeeper {
     } else {
       const { public: pub, wallet } = this.target(l.chainId);
       const tx = await this.opensea.forChain(t.opensea).fulfillment(listing, this.account.address);
-      if (tx.value !== listing.price) throw new Error(`fulfillment value ${tx.value} != listing ${listing.price}`);
+      const value = paymentToken === NATIVE ? listing.price : 0n;
+      if (tx.value !== value) throw new Error(`fulfillment value ${tx.value} != expected ${value}`);
+      if (paymentToken !== NATIVE) await this.approvePayment(l, paymentToken, listing.price);
       await pub.call({ account: this.account, to: tx.to, data: tx.data, value: tx.value }); // simulate
       if (this.cfg.dryRun) return log(`[dry-run] buy ${listing.tokenId} on ${t.name}`);
       const hash = await wallet.sendTransaction({ to: tx.to, data: tx.data, value: tx.value });
@@ -216,11 +326,23 @@ export class ExternalKeeper {
       this.nftContracts[l.vault] = listing.token;
     }
     const ref = t.solana ? keccak256(toHex(txId)) : txId;
-    const price = t.currency === "ETH" && !t.solana ? listing.price : ethCost;
+    const price = t.currency === "ETH" && !t.solana && paymentToken === NATIVE ? listing.price : ethCost;
     await this.send(`#${l.id} recordPurchase ${listing.tokenId}`, {
       address: l.vault, abi: extVaultAbi, functionName: "recordPurchase", args: [listing.tokenId, price, ref],
     });
     if (t.solana) this.receipts?.(l, listing.tokenId, txId);
+  }
+
+  /** Lets OpenSea's conduit pull exactly `amount` of the ERC-20 for one Seaport listing. */
+  async approvePayment(l, token, amount) {
+    const { public: pub, wallet } = this.target(l.chainId);
+    const spender = this.paymentSpender || OPENSEA_CONDUIT; // tests swap in their stand-in market
+    const allowance = await pub.readContract({ address: token, abi: erc20, functionName: "allowance", args: [this.account.address, spender] });
+    if (allowance >= amount) return;
+    if (this.cfg.dryRun) return log(`[dry-run] approve ${amount} of ${token} for OpenSea`);
+    const h = await wallet.writeContract({ address: token, abi: erc20, functionName: "approve", args: [spender, amount] });
+    await pub.waitForTransactionReceipt({ hash: h });
+    log(`#${l.id} approved ${amount} ${tokenSymbol(TARGETS[l.chainId], token)} for OpenSea ✓ ${h}`);
   }
 
   async deliverPrizes(l) {

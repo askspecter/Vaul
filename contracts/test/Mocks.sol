@@ -34,6 +34,44 @@ contract MockMarket {
     }
 }
 
+/// @dev 6-decimal stablecoin with open minting (stands in for USDC on the target chain).
+contract MockUSDC is ERC20("USD Coin", "USDC") {
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+
+    function mint(address to, uint256 amount) external {
+        _mint(to, amount);
+    }
+}
+
+/// @dev Fixed-price ERC-20 marketplace standing in for Seaport with OpenSea's conduit: the
+/// buyer approves this contract and it pulls the payment, like the conduit does.
+contract MockTokenMarket {
+    struct Listing { address seller; uint256 price; }
+    IERC721 public immutable nft;
+    ERC20 public immutable payToken;
+    mapping(uint256 => Listing) public listings;
+
+    constructor(IERC721 nft_, ERC20 payToken_) {
+        nft = nft_;
+        payToken = payToken_;
+    }
+
+    function list(uint256 id, uint256 price) external {
+        nft.transferFrom(msg.sender, address(this), id);
+        listings[id] = Listing(msg.sender, price);
+    }
+
+    function fill(uint256 id) external {
+        Listing memory l = listings[id];
+        require(l.seller != address(0), "not listed");
+        delete listings[id];
+        require(payToken.transferFrom(msg.sender, l.seller, l.price), "pay");
+        nft.transferFrom(address(this), msg.sender, id);
+    }
+}
+
 /// @dev Credits fees to recipients; claim() pays the caller, like the Pons escrow.
 contract MockEscrow {
     mapping(address => uint256) public balanceOf;

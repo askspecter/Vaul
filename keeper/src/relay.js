@@ -12,14 +12,15 @@ async function post(path, body) {
 }
 
 /**
- * Quote moving native ETH from `originChainId` to the native currency of `destinationChainId`.
+ * Quote moving native ETH from `originChainId` to `destinationChainId`, arriving as its native
+ * coin or, with `destinationCurrency`, as that token (e.g. USDC on Polygon).
  * EXACT_INPUT: `amount` is wei spent. EXACT_OUTPUT: `amount` is the destination amount wanted.
  */
-export async function quote({ originChainId, destinationChainId, user, recipient, amount, tradeType }) {
+export async function quote({ originChainId, destinationChainId, user, recipient, amount, tradeType, destinationCurrency }) {
   const q = await post("/quote", {
     user, recipient, originChainId, destinationChainId, tradeType,
     originCurrency: NATIVE_EVM,
-    destinationCurrency: destinationChainId === SOLANA_CHAIN_ID ? NATIVE_SOL : NATIVE_EVM,
+    destinationCurrency: destinationCurrency || (destinationChainId === SOLANA_CHAIN_ID ? NATIVE_SOL : NATIVE_EVM),
     amount: amount.toString(),
   });
   return {

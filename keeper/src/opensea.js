@@ -79,25 +79,43 @@ export class OpenSea {
     return this.slugs.get(key);
   }
 
-  /** Cheapest active ETH listings for a collection, lowest first. */
-  async bestListings(contract, limit = 10) {
-    const slug = await this.slugFor(contract);
+  /**
+   * Cheapest active listings for a collection, lowest first. By default only listings priced in
+   * the chain's native coin; `currencies` widens that (e.g. ["POL", "USDC"] on Polygon). Each
+   * listing carries `paymentToken`: the zero address for the native coin, else the ERC-20.
+   * Prices of different currencies are not comparable, so callers filter to one first.
+   */
+  async bestListings(contract, limit = 10, { currencies = NATIVE, slug } = {}) {
+    slug ||= await this.slugFor(contract);
     const data = await this.#get(`/listings/collection/${slug}/best?limit=${limit}`);
     return (data.listings || [])
       .map((l) => {
         const offer = l.protocol_data?.parameters?.offer?.[0];
+        const pay = l.protocol_data?.parameters?.consideration?.[0];
         return {
           hash: l.order_hash,
           protocolAddress: l.protocol_address,
           price: BigInt(l.price.current.value),
           currency: l.price.current.currency,
+          paymentToken: pay?.token ? getAddress(pay.token) : null,
           token: offer?.token && getAddress(offer.token),
           tokenId: offer ? BigInt(offer.identifierOrCriteria) : null,
           itemType: offer?.itemType,
         };
       })
-      .filter((l) => NATIVE.includes(l.currency) && l.token && l.token === getAddress(contract) && l.itemType === 2)
+      .filter((l) => currencies.includes(l.currency) && l.token && l.token === getAddress(contract) && l.itemType === 2)
       .sort((a, b) => (a.price < b.price ? -1 : 1));
+  }
+
+  /** Name, description and trait values of one NFT, for category filters. */
+  async nft(contract, tokenId) {
+    const { nft } = await this.#get(`/chain/${this.chain}/contract/${contract}/nfts/${tokenId}`);
+    return {
+      name: nft?.name || "",
+      description: nft?.description || "",
+      traits: (nft?.traits || []).map((t) => `${t.trait_type ?? ""}: ${t.value ?? ""}`),
+      image: nft?.display_image_url || nft?.image_url || null,
+    };
   }
 
   /**

@@ -62,6 +62,24 @@ Keeper tidak akan berjalan sebelum `LAUNCHER` diisi. Setelah diisi: tab **Action
 - [ ] Halaman **Docs** → bagian Contracts menampilkan Launcher, Registry, Treasury dan Keeper milik Anda.
 - [ ] Launch 1 koin percobaan, lalu cek muncul di **Coins**.
 
+## Card Vaults (koin yang mengumpulkan kartu asli)
+
+Card Vaults memakai ExternalLauncher yang sudah ada, jadi **tidak perlu deploy kontrak baru**. Kartunya adalah kartu graded asli yang disimpan oleh Courtyard dan dijadikan NFT di Polygon. Kategorinya:
+
+| Kategori | Registry key |
+| --- | --- |
+| Pokémon Cards | `0x4A427aD3bFa8AB3602744ed397c90Aa1c03f2508` |
+| One Piece Cards | `0x4CFFE73c164c2059F6055074BdE8021Ab6B84bff` |
+
+**Sekali saja, dari HP:** buka `vaul.app/cards?setup`, sambungkan wallet **Owner**, lalu tekan **List it** untuk tiap kategori (2 transaksi kecil). Setelah itu tombol launch di halaman Cards langsung aktif.
+
+Cara keeper membeli kartu:
+- membaca 50 listing termurah Courtyard di OpenSea, lalu memilih yang namanya atau traits-nya cocok dengan kategori (kartu basket dan lainnya dilewati);
+- ETH vault diumumkan 1 jam sebelum ditarik (bisa dibatalkan Owner), lalu di-bridge ke Polygon dalam bentuk USDC atau POL, sesuai mata uang listing kartunya;
+- pemenang raffle menerima NFT kartu di Polygon, di alamat wallet yang sama. Kartu fisiknya bisa ditebus lewat courtyard.io.
+
+Tidak ada secret baru. `POLYGON_RPC` (variable, opsional) bisa diisi kalau RPC publik bawaan sedang lambat.
+
 ## Keamanan
 - Private key **Owner** tidak pernah ditaruh di mana pun. Owner hanya dipakai lewat wallet HP.
 - Akun **Keeper** hanya berisi ETH untuk gas. Kalau key-nya bocor, panggil `setKeeper(address)` di Registry dengan akun Owner, lalu update secret `KEEPER_PRIVATE_KEY`.
