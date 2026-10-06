@@ -1,0 +1,9 @@
+[
+ {
+  "id": "sweep",
+  "name": "$VAUL Sweep Hook vault",
+  "vault": "0x69Ca559436CbcAf34aA35D65a6d0Bcd413653DBE",
+  "token": "0x927b50e4cE03671d5a505922750edcc9Cb734ad4",
+  "note": "Filled with 1% of every ETH/$VAUL sell through the Sweep Hook pool; its cards are raffled to $VAUL holders."
+ }
+]

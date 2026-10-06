@@ -15,6 +15,7 @@ export function loadConfig() {
     launcher: req("LAUNCHER"),
     externalLauncher: process.env.EXTERNAL_LAUNCHER || "",
     collectionsFile: process.env.COLLECTIONS_FILE || "../collections.json",
+    vaultsFile: process.env.VAULTS_FILE || "../vaults.json",
     solanaKey: process.env.KEEPER_SOLANA_KEY || "",
     solanaRpc: process.env.SOLANA_RPC || "",
     collectorCryptApiKey: process.env.COLLECTOR_CRYPT_API_KEY || "",

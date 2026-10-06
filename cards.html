@@ -83,6 +83,9 @@
       <h3>Owner setup</h3>
       <p class="muted">Lists each card category and grail in the Vaul Registry so coins can be launched with it. Only the Registry owner's wallet can do this, one transaction each.</p>
       <div id="cvSetupRows"><p class="empty">Checking…</p></div>
+      <h3 class="hs-title">$VAUL Sweep Hook</h3>
+      <p class="muted">A Uniswap v4 hook for one ETH/$VAUL pool: every buy burns 1% in $VAUL, every sell sends 1% in ETH to a card vault raffled to $VAUL holders. Three transactions from the owner wallet, in order.</p>
+      <div id="hookSetup"><p class="empty">Checking…</p></div>
     </section>
 
     <h2 class="cv-h2">Questions</h2>
@@ -96,5 +99,6 @@
   </main>
   <footer id="site-footer"></footer>
   <script type="module" src="pages/cards.js"></script>
+  <script type="module" src="pages/hook-setup.js"></script>
 </body>
 </html>

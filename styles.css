@@ -1038,3 +1038,9 @@ a.nft:hover { border-color: var(--accent); }
 .cv-setup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
 .cv-setup-row small.mono { display: block; color: var(--muted); }
 .cv-setup-row .btn, .cv-setup-row .pill { flex: none; white-space: nowrap; }
+.hs-title { margin: 28px 0 6px; }
+.ot-hook { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 14px; padding: 14px 18px; border: 1px solid var(--line-2); border-radius: var(--radius);
+  background: radial-gradient(60% 120% at 0% 50%, rgba(91, 59, 245, .18), transparent 60%), var(--surface); font-size: 14px; color: var(--ink-2); }
+.ot-hook-k { font: 500 11px var(--mono); letter-spacing: .16em; color: var(--lavender); text-transform: uppercase; }
+.ot-hook b { color: var(--ink); font-family: var(--display); }
+.ot-hook a { color: var(--lavender); margin-left: auto; }

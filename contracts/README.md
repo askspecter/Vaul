@@ -24,6 +24,16 @@ Network: Robinhood Chain mainnet, chain id `4663`, RPC `https://rpc.mainnet.chai
 
 External addresses (Robinhood Chain): Pons V2 factory `0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`, Pons fee escrow `0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e`, Seaport 1.6 `0x0000000000000068F116a894984e2DB1123eB395`.
 
+## Sweep Hook (Uniswap v4)
+
+`SweepHook` is a Uniswap v4 hook for one native-ETH / $VAUL pool. Every swap pays `FEE_BPS` (1%) of its unspecified side on top of the LP fee: paid in $VAUL (buys) it goes to the dead address, paid in ETH (sells) it goes to a Vaul `ExternalVault` whose cards are raffled to $VAUL holders. Token, vault, fee and pool are immutable; only `initializer` can create the pool, and only once.
+
+- Permissions: `beforeInitialize`, `afterSwap`, `afterSwapReturnDelta` (address bits `0x2044`, mined with CREATE2).
+- `SweepVaultCloner` clones and initialises the vault in one transaction, so nobody can initialise it first.
+- `script/SweepHookPlan.s.sol` (`OWNER=0x… forge script script/SweepHookPlan.s.sol`) mines the hook salt and writes `../assets/sweep-hook.json`: the two CREATE2-deployer transactions and the addresses they create. The site's `/cards?setup` panel sends them from the owner's wallet, then creates the pool at the Pons price.
+- Uniswap v4 on Robinhood Chain: PoolManager `0x8366a39CC670B4001A1121B8F6A443A643e40951`, PositionManager `0x58daec3116aae6d93017baaea7749052e8a04fa7`.
+- Fork tests (live PoolManager and $VAUL): `forge test --match-contract SweepHook --fork-url https://rpc.mainnet.chain.robinhood.com`. They skip on a plain `forge test`.
+
 ## Test
 
 ```sh

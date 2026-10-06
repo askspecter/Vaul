@@ -125,3 +125,22 @@ async function renderOfficial() {
   }
 }
 renderOfficial().catch((e) => console.error(e));
+
+/** $VAUL Sweep Hook (Uniswap v4): what its swaps have burned and swept so far, once deployed. */
+async function renderHook() {
+  const plan = await fetch("assets/sweep-hook.json").then((r) => r.json());
+  const code = await client.getCode({ address: plan.hook }).catch(() => null);
+  if (!code || code === "0x") return;
+  const abi = [
+    { type: "function", name: "totalBurned", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+    { type: "function", name: "totalSwept", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  ];
+  const [burned, swept] = await Promise.all(["totalBurned", "totalSwept"].map((fn) => client.readContract({ address: plan.hook, abi, functionName: fn })));
+  const n = (wei, dp) => Number(formatEther(wei)).toLocaleString(undefined, { maximumFractionDigits: dp });
+  $("#otHook").innerHTML = `<span class="ot-hook-k">Sweep Hook · Uniswap v4</span>
+    <span>Every buy burns 1%, every sell sweeps 1% into a card vault for holders.</span>
+    <b>${n(burned, 0)} $VAUL burned by swaps</b><b>${n(swept, 4)} ETH swept to the vault</b>
+    <a href="${CONFIG.explorer}/address/${plan.hook}" target="_blank" rel="noopener">Hook ↗</a>`;
+  $("#otHook").hidden = false;
+}
+renderHook().catch((e) => console.error(e));

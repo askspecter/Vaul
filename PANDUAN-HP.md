@@ -104,6 +104,29 @@ Supaya bisa di-launch, tiap key di atas perlu didaftarkan sekali dengan akun Own
 - `ceilingEth` per grail (3 / 1 / 4 / 3 ETH) menggantikan `MAX_CEILING_ETH` khusus grail itu, karena grail bisa lebih mahal dari batas biasa. Penarikan dana tetap diumumkan 1 jam sebelumnya dan bisa dibatalkan Owner.
 - Kalau tidak ada kartu yang memenuhi spesifikasi sedang dijual, vault tetap menabung dan menunggu.
 
+## $VAUL Sweep Hook (Uniswap v4)
+
+Hook Uniswap v4 untuk satu pool ETH/$VAUL di Robinhood Chain. Selain fee LP 0,3%, setiap swap di pool ini membayar **1%**:
+- **Buy $VAUL:** 1% diambil dalam $VAUL lalu dikirim ke alamat dead (**dibakar**).
+- **Sell $VAUL:** 1% diambil dalam ETH lalu dikirim ke **vault kartu** (Pokémon dari Collector Crypt) yang di-raffle ke **holder $VAUL**.
+
+Fee, token, vault, dan pool dikunci di kontrak, jadi tidak ada yang bisa mengubah atau mengalihkannya. Kontraknya sudah dites di fork mainnet terhadap PoolManager Uniswap v4 dan token $VAUL yang asli.
+
+| | Alamat |
+| --- | --- |
+| Uniswap v4 PoolManager | `0x8366a39CC670B4001A1121B8F6A443A643e40951` |
+| Sweep Hook | `0x7898b3113bb01bF380118481e623A27B4A2EE044` |
+| Vault kartu holder $VAUL | `0x69Ca559436CbcAf34aA35D65a6d0Bcd413653DBE` |
+
+**Cara deploy dari HP** (wallet **Owner** `0xc109…8C97`): buka `vaul.app/cards?setup`, lalu di bagian **$VAUL Sweep Hook** tekan tombol berurutan:
+1. **Deploy** vault kartu (vault dibuat dan langsung diatur dalam 1 transaksi).
+2. **Deploy** Sweep Hook.
+3. **Create pool**: membuat pool ETH/$VAUL dengan harga yang sama dengan pool Pons saat itu. Sebelum mengirim, kamu akan diminta mengonfirmasi harganya.
+
+**Setelah itu, tambahkan likuiditas.** Hook hanya menghasilkan burn dan kartu kalau orang trading di pool ini, jadi pool perlu likuiditas yang cukup. Caranya: Uniswap → Pool → New position → **v4** → ETH / $VAUL → fee **0,3%** → isi hook `0x7898b3113bb01bF380118481e623A27B4A2EE044`. Likuiditas yang kamu tambahkan tetap milikmu dalam bentuk NFT posisi Uniswap, dan kamu juga mendapat fee LP 0,3%.
+
+Supaya vault bisa membeli kartu, keeper membutuhkan `KEEPER_SOLANA_KEY` (lihat bagian Collector Crypt). Raffle-nya otomatis memakai snapshot holder $VAUL, tanpa memasukkan alamat dead, pool, dan kontrak lain.
+
 ## Keamanan
 - Private key **Owner** tidak pernah ditaruh di mana pun. Owner hanya dipakai lewat wallet HP.
 - Akun **Keeper** hanya berisi ETH untuk gas. Kalau key-nya bocor, panggil `setKeeper(address)` di Registry dengan akun Owner, lalu update secret `KEEPER_PRIVATE_KEY`.

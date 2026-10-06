@@ -136,6 +136,22 @@ export class ExternalKeeper {
       // `collection` for the shared raffle code is the vault itself (it answers ownerOf).
       out.push({ id: `e${i}`, token, curve, router, vault, collection: vault, raffles, policy: POLICY[policy], external: true, chainId: Number(chainId), collection32: collection, isEvm });
     }
+    return [...out, ...await this.readStandaloneVaults()];
+  }
+
+  /**
+   * Standalone ExternalVaults from vaults.json (e.g. the one SweepHook fills): no launch and no fee
+   * router; `token` is the coin whose holders the raffles snapshot. Skipped until deployed.
+   */
+  async readStandaloneVaults() {
+    const out = [];
+    for (const v of this.vaults || []) {
+      const code = await this.client.getCode({ address: v.vault }).catch(() => null);
+      if (!code || code === "0x") continue;
+      const r = (fn) => this.client.readContract({ address: v.vault, abi: extVaultAbi, functionName: fn });
+      const [policy, raffles, chainId, collection, isEvm] = await Promise.all([r("policy"), r("raffles"), r("externalChainId"), r("externalCollection"), r("externalIsEvm")]);
+      out.push({ id: v.id, token: v.token, curve: null, router: null, vault: v.vault, collection: v.vault, raffles, policy: POLICY[policy], external: true, chainId: Number(chainId), collection32: collection, isEvm });
+    }
     return out;
   }
 

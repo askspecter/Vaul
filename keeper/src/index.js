@@ -36,8 +36,9 @@ async function makeExternal() {
     : {};
   const { CollectorCrypt } = await import("./collectorcrypt.js");
   const cc = new CollectorCrypt({ apiKey: cfg.collectorCryptApiKey, log });
+  const vaults = JSON.parse(await readFile(cfg.vaultsFile, "utf8").catch(() => "[]"));
   return new ExternalKeeper({
-    cfg, client, wallet, account, send, opensea, collections, solana, cc, ...hooks,
+    cfg, client, wallet, account, send, opensea, collections, solana, cc, vaults, ...hooks,
     receipts: (l, tokenId, sig) => appendReceipt({ vault: l.vault, chainId: l.chainId, tokenId: tokenId.toString(), signature: sig }),
   });
 }
@@ -94,6 +95,7 @@ async function readLaunches() {
 }
 
 async function harvest(l) {
+  if (!l.router) return; // standalone vaults (e.g. the Sweep Hook's) are filled directly, not by a fee router
   const pending = await client.readContract({ address: l.router, abi: routerAbi, functionName: "pending" });
   if (pending < cfg.minHarvest) return;
   log(`#${l.id} harvesting ${formatEther(pending)} ETH`);
@@ -160,7 +162,7 @@ async function openRaffles(l) {
     const block = await client.getBlockNumber();
     const balances = await balancesAt(client, l.token, cfg.startBlock, block, cfg.logChunk);
     const snap = await buildSnapshot(client, balances, {
-      exclude: [l.curve, l.router, l.vault, cfg.launcher],
+      exclude: [l.curve, l.router, l.vault, cfg.launcher].filter(Boolean),
       minBalance: cfg.minTicketBalance,
     });
     if (!snap) return warn(`#${l.id} no eligible holders for raffle`);
