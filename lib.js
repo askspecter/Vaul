@@ -1,5 +1,5 @@
 import {
-  createPublicClient, createWalletClient, custom, http, defineChain, parseAbi,
+  createPublicClient, createWalletClient, custom, http, fallback, defineChain, parseAbi,
   formatEther, isAddress, toHex, getAddress, keccak256, encodeAbiParameters, pad,
 } from "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm";
 import { CONFIG } from "./config.js";
@@ -12,8 +12,18 @@ export const chain = defineChain({
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: { default: { http: [CONFIG.rpcUrl] } },
   blockExplorers: { default: { name: "Blockscout", url: CONFIG.explorer } },
+  contracts: { multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11" } },
 });
-export const client = createPublicClient({ chain, transport: http() });
+// Reads go straight to the chain's RPC (batched into few requests). Some mobile networks block or
+// throttle that host, so a slow or failed request falls back to the site's own /api/rpc relay.
+export const client = createPublicClient({
+  chain,
+  batch: { multicall: true },
+  transport: fallback([
+    http(CONFIG.rpcUrl, { batch: { batchSize: 50, wait: 20 }, timeout: 8_000, retryCount: 1 }),
+    http("/api/rpc", { batch: { batchSize: 50, wait: 20 }, timeout: 20_000, retryCount: 2 }),
+  ]),
+});
 export const live = isAddress(CONFIG.launcher);
 export const externalLive = isAddress(CONFIG.externalLauncher || "");
 export const ROBINHOOD = CONFIG.chainId;
