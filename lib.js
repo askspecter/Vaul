@@ -14,14 +14,15 @@ export const chain = defineChain({
   blockExplorers: { default: { name: "Blockscout", url: CONFIG.explorer } },
   contracts: { multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11" } },
 });
-// Reads go straight to the chain's RPC (batched into few requests). Some mobile networks block or
-// throttle that host, so a slow or failed request falls back to the site's own /api/rpc relay.
+// Reads go through the site's own /api/rpc relay first (same domain, so it works on networks that
+// block or stall the public RPC host), batched into few requests. If the relay is down, the
+// public RPC is used directly.
 export const client = createPublicClient({
   chain,
   batch: { multicall: true },
   transport: fallback([
-    http(CONFIG.rpcUrl, { batch: { batchSize: 50, wait: 20 }, timeout: 8_000, retryCount: 1 }),
-    http("/api/rpc", { batch: { batchSize: 50, wait: 20 }, timeout: 20_000, retryCount: 2 }),
+    http("/api/rpc", { batch: { batchSize: 50, wait: 20 }, timeout: 15_000, retryCount: 1 }),
+    http(CONFIG.rpcUrl, { batch: { batchSize: 50, wait: 20 }, timeout: 10_000, retryCount: 1 }),
   ]),
 });
 export const live = isAddress(CONFIG.launcher);
