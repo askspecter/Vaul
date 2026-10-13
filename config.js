@@ -22,8 +22,6 @@ export const CONFIG = {
     137: { name: "Polygon", evm: true, currency: "POL", explorer: "https://polygonscan.com", rpc: "https://polygon-bor-rpc.publicnode.com", opensea: "matic", icon: "assets/chains/polygon.png" },
     792703809: { name: "Solana", evm: false, currency: "SOL", explorer: "https://solscan.io", icon: "assets/chains/solana.jpg" },
   },
-  // Vaul's own token, launched on Pons (shown on the home page and in the footer).
-  officialToken: { address: "0x927b50e4ce03671d5a505922750edcc9cb734ad4", symbol: "VAUL" },
   collectionsUrl: "collections.json", // names + marketplace slugs for listed collections
   hiddenLaunches: [], // launch ids kept off the site's lists (the contracts still run them)
   x: "UseVaul", // X / Twitter handle shown in the menu
