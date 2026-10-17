@@ -4,6 +4,17 @@ import { erc20Abi } from "./abi.js";
 
 const DEAD = "0x000000000000000000000000000000000000dEaD";
 
+/** Contract events from `fromBlock` to the head, in chunks: the RPC rejects ranges over 10M blocks. */
+export async function eventsSince(client, params, fromBlock, span = 5_000_000n) {
+  const latest = await client.getBlockNumber();
+  const out = [];
+  for (let start = fromBlock; start <= latest; start += span) {
+    const end = start + span - 1n > latest ? latest : start + span - 1n;
+    out.push(...await client.getContractEvents({ ...params, fromBlock: start, toBlock: end }));
+  }
+  return out;
+}
+
 /** Replays Transfer logs to get balances at `toBlock`. */
 export async function balancesAt(client, token, fromBlock, toBlock, chunk) {
   const bal = new Map();

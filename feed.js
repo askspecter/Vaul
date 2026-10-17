@@ -2,10 +2,8 @@
 // Everything here is read straight from contract events, so the feed cannot drift from the chain.
 import { parseAbi } from "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm";
 import {
-  CONFIG, ABI, client, esc, eth, short, addrLink, txLink, chainName, externalTxLink, getAddress, toast,
+  ABI, client, logsSinceStart, esc, eth, short, addrLink, txLink, chainName, externalTxLink, getAddress, toast,
 } from "./lib.js";
-
-const FROM = () => BigInt(CONFIG.startBlock || 0);
 
 const VAULT_EVENTS = parseAbi([
   "event Bought(address indexed marketplace, uint256 indexed tokenId, uint256 price)",
@@ -18,7 +16,7 @@ const VAULT_EVENTS = parseAbi([
 const RAFFLE_EVENTS = ABI.raffles.filter((x) => x.type === "event");
 
 const logs = (address, events) => (address.length
-  ? client.getLogs({ address, events, fromBlock: FROM(), toBlock: "latest" })
+  ? logsSinceStart((r) => client.getLogs({ address, events, ...r }))
   : Promise.resolve([]));
 
 const tokenLabel = (id) => {
@@ -37,7 +35,7 @@ export async function loadActivity(launches) {
   const [fees, vaults, raffles] = await Promise.all([
     logs([...byRouter.keys()], [ABI.router.find((x) => x.name === "Harvested")]),
     logs([...byVault.keys()], VAULT_EVENTS),
-    raffleAddrs.length ? client.getLogs({ address: raffleAddrs, events: RAFFLE_EVENTS, fromBlock: FROM(), toBlock: "latest" }) : [],
+    raffleAddrs.length ? logsSinceStart((r) => client.getLogs({ address: raffleAddrs, events: RAFFLE_EVENTS, ...r })) : [],
   ]);
 
   const items = [];

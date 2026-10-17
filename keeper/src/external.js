@@ -22,6 +22,7 @@
 import { createPublicClient, createWalletClient, http, defineChain, parseAbi, getAddress, keccak256, toHex, formatEther, parseEther } from "viem";
 import * as relay from "./relay.js";
 import { log, warn } from "./log.js";
+import { eventsSince } from "./snapshot.js";
 
 export const extLauncherAbi = parseAbi([
   "function launchCount() view returns (uint256)",
@@ -390,7 +391,7 @@ export class ExternalKeeper {
   }
 
   async deliverPrizes(l) {
-    const logs = await this.client.getContractEvents({ address: l.vault, abi: extVaultAbi, eventName: "PrizeOwed", fromBlock: this.cfg.startBlock, toBlock: "latest" });
+    const logs = await eventsSince(this.client, { address: l.vault, abi: extVaultAbi, eventName: "PrizeOwed" }, this.cfg.startBlock);
     const t = TARGETS[l.chainId];
     const meta = this.meta(l.chainId, l.collection32);
     for (const { args } of logs) {

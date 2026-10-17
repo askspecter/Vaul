@@ -7,7 +7,7 @@ import { launcherAbi, routerAbi, vaultAbi, rafflesAbi, erc721Abi, arbSysAbi, ARB
 import { OpenSea, RateLimited } from "./opensea.js";
 import { serveSnapshots } from "./server.js";
 import { ExternalKeeper } from "./external.js";
-import { balancesAt, buildSnapshot, winnerOf } from "./snapshot.js";
+import { balancesAt, buildSnapshot, eventsSince, winnerOf } from "./snapshot.js";
 import { log, warn } from "./log.js";
 
 const cfg = loadConfig();
@@ -142,9 +142,7 @@ function snapshotPath(vault, id) {
 }
 
 async function heldTokenIds(l) {
-  const logs = await client.getContractEvents({
-    address: l.vault, abi: vaultAbi, eventName: "Bought", fromBlock: cfg.startBlock, toBlock: "latest",
-  });
+  const logs = await eventsSince(client, { address: l.vault, abi: vaultAbi, eventName: "Bought" }, cfg.startBlock);
   const ids = [...new Set(logs.map((x) => x.args.tokenId))];
   const held = [];
   for (const id of ids) {

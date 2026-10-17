@@ -474,6 +474,20 @@ export function renderChrome(active) {
 
 const read = (address, abi, functionName, args) => client.readContract({ address, abi, functionName, args });
 
+/** Logs from CONFIG.startBlock to the chain head. The RPC rejects queries spanning more than
+ *  10M blocks, so the range is split into chunks fetched in parallel. `query` gets
+ *  { fromBlock, toBlock } and returns a getLogs / getContractEvents promise. */
+const LOG_SPAN = 5_000_000n;
+export async function logsSinceStart(query) {
+  const latest = await client.getBlockNumber();
+  const ranges = [];
+  for (let from = BigInt(CONFIG.startBlock || 0); from <= latest; from += LOG_SPAN) {
+    const to = from + LOG_SPAN - 1n;
+    ranges.push({ fromBlock: from, toBlock: to < latest ? to : latest });
+  }
+  return (await Promise.all(ranges.map(query))).flat();
+}
+
 export async function launchCount() {
   return live ? Number(await read(CONFIG.launcher, ABI.launcher, "launchCount")) : 0;
 }
@@ -589,7 +603,7 @@ export async function loadExternalLaunch(n) {
     read(router, ABI.router, "pending").catch(() => 0n),
     v("policy"), v("externalChainId"), v("externalIsEvm"), v("totalWithdrawn"), v("totalSpent"),
     v("pendingAmount"), v("pendingReadyAt"),
-    client.getContractEvents({ address: vault, abi: ABI.extVault, eventName: "ExternalPurchase", fromBlock: BigInt(CONFIG.startBlock || 0), toBlock: "latest" }),
+    logsSinceStart((r) => client.getContractEvents({ address: vault, abi: ABI.extVault, eventName: "ExternalPurchase", ...r })),
   ]);
   const m = meta.get(getAddress(collection));
   return {
@@ -669,9 +683,9 @@ export function winnerEntry(snapshot, ticket) {
 /** Registry keys of every listed collection (Robinhood addresses and other-chain keys). */
 export async function listedCollections() {
   const registry = await read(CONFIG.launcher, ABI.launcher, "registry");
-  const logs = await client.getContractEvents({
-    address: registry, abi: ABI.registry, eventName: "CollectionSet", fromBlock: BigInt(CONFIG.startBlock || 0), toBlock: "latest",
-  });
+  const logs = await logsSinceStart((r) => client.getContractEvents({
+    address: registry, abi: ABI.registry, eventName: "CollectionSet", ...r,
+  }));
   const state = new Map();
   for (const { args } of logs) state.set(getAddress(args.collection), args.listed);
   return [...state].filter(([, listed]) => listed).map(([a]) => a);
